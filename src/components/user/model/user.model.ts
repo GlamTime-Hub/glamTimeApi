@@ -6,8 +6,8 @@ export interface IUser extends Document {
   phoneNumber: string;
   phoneNumberExtension: string;
   email: string;
-  country: string;
-  city: string;
+  country: mongoose.Types.ObjectId;
+  city: mongoose.Types.ObjectId;
   gender: "Male" | "Female" | "Non-binary";
   notificationPreference: Record<string, unknown>;
   role: "Admin" | "User";
@@ -20,8 +20,12 @@ const userSchema: Schema = new Schema<IUser>({
   phoneNumber: { type: String, required: true },
   phoneNumberExtension: { type: String, required: true },
   email: { type: String, required: true },
-  country: { type: String, required: true },
-  city: { type: String, required: true },
+  country: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Country",
+    required: true,
+  },
+  city: { type: mongoose.Schema.Types.ObjectId, ref: "City", required: true },
   gender: {
     type: String,
     enum: ["Male", "Female", "Non-binary"],

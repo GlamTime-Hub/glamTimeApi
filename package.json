@@ -4,6 +4,7 @@
   "description": "Repository for API - backend",
   "main": "index.js",
   "scripts": {
+    "load-data": "ts-node src/commands/loadData.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "config": "ts-node set-env.ts",
     "dev": "nodemon ",
