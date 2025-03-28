@@ -1,8 +1,7 @@
-import express, { Request, Response, Router } from "express";
+import express, { Router } from "express";
+import userRouter from "./components/user/user.router";
 
 const routes: Router = express.Router();
-routes.get('/', (_: Request, res: Response) => {
-  res.send('API funcionando correctamente');
-});
+routes.use("/user", userRouter);
 
 export default routes;
