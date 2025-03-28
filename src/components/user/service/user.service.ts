@@ -4,4 +4,8 @@ const createUser = async (user: any) => {
   return await User.create(user);
 };
 
-export { createUser };
+const getUserById = async (userAuthId: string) => {
+  return await User.findOne({ userAuthId }).lean().exec();
+};
+
+export { createUser, getUserById };
