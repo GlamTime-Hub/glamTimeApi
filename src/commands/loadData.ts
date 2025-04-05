@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import { loadCountryData } from "./countryData";
 import { loadCategoryData } from "./categoryData";
 import { loadBusinessData } from "./businessData";
+import { loadServiceData } from "./servicesData";
+import { loadProfessionalData } from "./professionalData";
 
 const MONGO_URL = process.env.DATABASE_URL || "";
 
@@ -14,7 +16,11 @@ const loadData = async () => {
 
     // await Promise.all([loadCountryData(), loadCategoryData()]);
 
-    await loadBusinessData();
+    // await loadBusinessData();
+
+    // await loadServiceData()
+
+    await loadProfessionalData()
 
     process.exit(0);
   } catch (error) {
