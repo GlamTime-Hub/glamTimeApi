@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface IReviewBusiness extends Document {
   userId: mongoose.Types.ObjectId;
-  BusinessId: mongoose.Types.ObjectId;
+  businessId: mongoose.Types.ObjectId;
   rating: number;
   comment: string;
   createdAt: Date;
@@ -15,7 +15,7 @@ const reviewBusinessSchema: Schema = new Schema<IReviewBusiness>(
       ref: "User",
       required: true,
     },
-    BusinessId: {
+    businessId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Business",
       required: true,
