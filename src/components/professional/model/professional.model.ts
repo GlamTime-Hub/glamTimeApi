@@ -15,7 +15,6 @@ interface WorkingHours {
 }
 
 export interface IProfessional extends Document {
-  name: string;
   userId: mongoose.Types.ObjectId;
   businessId: mongoose.Types.ObjectId;
   status: string;
@@ -47,7 +46,6 @@ const workingHoursSchema = new Schema<WorkingHours>(
 );
 
 const professionalSchema: Schema = new Schema<IProfessional>({
-  name: { type: String, required: true },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
