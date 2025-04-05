@@ -8,7 +8,6 @@ import {
 const businessRouter: Router = Router();
 
 businessRouter.post("/get-business", getAllBusiness);
-
 businessRouter.get("/get-business-by-id/:id", getBusinessDetail);
 businessRouter.post("/get-top-business", getTopBusiness);
 
