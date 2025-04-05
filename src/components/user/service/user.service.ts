@@ -1,7 +1,15 @@
-import { User } from "../model/user.model";
+import { IUser, User } from "../model/user.model";
 
-const createUser = async (user: any) => {
-  return await User.create(user);
+const createUser = async (newUser: IUser) => {
+  const userExist = await User.findOne({ email: newUser.email }).lean().exec();
+
+  if (userExist) {
+    return { exists: true, user: userExist };
+  }
+
+  const user = await User.create(newUser);
+
+  return { exists: false, user };
 };
 
 const getUserById = async (userAuthId: string) => {

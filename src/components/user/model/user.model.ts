@@ -8,10 +8,13 @@ export interface IUser extends Document {
   email: string;
   country: mongoose.Types.ObjectId;
   city: mongoose.Types.ObjectId;
-  gender: "Male" | "Female" | "Non-binary";
-  notificationPreference: Record<string, unknown>;
-  role: "Admin" | "User";
-  birthDay: Date;
+  gender: "male" | "female" | "non-binary";
+  notificationPreference: {
+    push: boolean;
+  };
+  role: "admin" | "user" | "professional";
+  birthDay: number;
+  birthMonth: number;
 }
 
 const userSchema: Schema = new Schema<IUser>({
@@ -28,12 +31,19 @@ const userSchema: Schema = new Schema<IUser>({
   city: { type: mongoose.Schema.Types.ObjectId, ref: "City", required: true },
   gender: {
     type: String,
-    enum: ["Male", "Female", "Non-binary"],
+    enum: ["male", "female", "non-binary"],
     required: true,
   },
-  notificationPreference: { type: Object, required: true },
-  role: { type: String, enum: ["Admin", "User"], required: true },
-  birthDay: { type: Date, required: true },
+  notificationPreference: {
+    push: { type: Boolean, default: true },
+  },
+  role: {
+    type: String,
+    enum: ["admin", "user", "professional"],
+    required: true,
+  },
+  birthDay: { type: Number, required: true },
+  birthMonth: { type: Number, required: true },
 });
 
 export const User = mongoose.model<IUser>("User", userSchema);

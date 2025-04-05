@@ -1,31 +1,21 @@
 import { NextFunction, Request, Response } from "express";
 import { createUser, getUserById } from "../service/user.service";
+import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 
 const newUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const createdUser = await createUser(req.body);
+    const { exists, user } = await createUser(req.body);
+
+    if (exists) {
+      res.status(409).json({
+        message: `Ya existe un usuario con el email: ${user.email}`,
+        data: user,
+      });
+      return;
+    }
 
     res.status(201).json({
-      message: "User created successfully",
-      data: createdUser,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const getUserProfile = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { userAuthId } = req.params;
-    
-    const user = await getUserById(userAuthId);
-
-    res.status(201).json({
-      message: "User profile successfully",
+      message: "Usuario creado correctamente",
       data: user,
     });
   } catch (error) {
@@ -33,4 +23,27 @@ const getUserProfile = async (
   }
 };
 
-export { newUser, getUserProfile };
+const getUserProfileById = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { userAuthId } = req.user;
+
+    const user = await getUserById(userAuthId);
+
+    if (!user) {
+      res.status(404).json({ message: "Usuario no encontrado" });
+      return;
+    }
+
+    res.status(201).json({
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { newUser, getUserProfileById };
