@@ -2,6 +2,7 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import { loadCountryData } from "./countryData";
 import { loadCategoryData } from "./categoryData";
+import { loadBusinessData } from "./businessData";
 
 const MONGO_URL = process.env.DATABASE_URL || "";
 
@@ -11,7 +12,9 @@ const loadData = async () => {
       serverSelectionTimeoutMS: 5000,
     });
 
-    await Promise.all([loadCountryData(), loadCategoryData()]);
+    // await Promise.all([loadCountryData(), loadCategoryData()]);
+
+    await loadBusinessData();
 
     process.exit(0);
   } catch (error) {
