@@ -1,63 +1,46 @@
-import jwt from "jsonwebtoken";
-import jwksClient from "jwks-rsa";
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
+import { supabase } from "../config/supabase";
 
 export interface AuthenticatedRequest extends Request {
   user?: any;
 }
 
-// Configura el cliente JWKS para obtener las claves públicas de Supabase
-const client = jwksClient({
-  jwksUri: `${process.env.SUPABSE_API_URL}/auth/v1/certs`,
-});
-
-// Middleware de autenticación
-export const supabaseAuth = async (
-  req: Request,
+export const verifyToken = async (
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
   const authHeader = req.headers.authorization;
-
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res
+    res
       .status(401)
       .json({ error: "Token no proporcionado o formato incorrecto" });
+    return;
   }
 
   const token = authHeader.split(" ")[1];
 
+  if (!token) {
+    res.status(401).json({ message: "Token is required" });
+    return;
+  }
+
   try {
-    // Obtener la clave pública para verificar el token
-    const getKey = (header: any, callback: any) => {
-      client.getSigningKey(header.kid, (err, key) => {
-        const signingKey = key?.getPublicKey();
-        callback(null, signingKey);
-      });
-    };
+    const { data, error } = await supabase.auth.getUser(token);
 
-    // Verificar el token
-    jwt.verify(
-      token,
-      getKey,
-      {
-        audience: "authenticated",
-        issuer: `${process.env.SUPABSE_API_URL}/auth/v1`,
-        algorithms: ["RS256"],
-      },
-      (err, decoded) => {
-        if (err) {
-          return res
-            .status(401)
-            .json({ error: "Token inválido", details: err.message });
-        }
+    if (error || !data.user) {
+      console.log("errror", error);
+      res.status(401).json({ message: "Invalid token", error });
+      return;
+    }
 
-        // Añadir el usuario decodificado a la solicitud
-        (req as any).user = decoded;
-        next();
-      }
-    );
-  } catch (error) {
-    return res.status(500).json({ error: "Error al verificar el token" });
+    req.user = data.user;
+
+    next();
+    return;
+  } catch (err) {
+    console.error("Error validating token:", err);
+    next(err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

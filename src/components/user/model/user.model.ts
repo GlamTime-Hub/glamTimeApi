@@ -21,7 +21,7 @@ export interface IUser extends Document {
 const userSchema: Schema = new Schema<IUser>({
   userAuthId: { type: String, required: true },
   name: { type: String, required: true },
-  urlPhoto: { type: String, required: true },
+  urlPhoto: { type: String, required: false, default: "" },
   phoneNumber: { type: String, required: true },
   phoneNumberExtension: { type: String, required: true },
   email: { type: String, required: true },
@@ -38,6 +38,7 @@ const userSchema: Schema = new Schema<IUser>({
   },
   notificationPreference: {
     push: { type: Boolean, default: true },
+    news: { type: Boolean, default: true },
   },
   role: {
     type: String,

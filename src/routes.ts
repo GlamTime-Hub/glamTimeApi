@@ -4,7 +4,7 @@ import locationRouter from "./components/location/location.router";
 import businessRouter from "./components/business/business.router";
 
 const routes: Router = express.Router();
-routes.use("/users", userRouter);
+routes.use("/user", userRouter);
 routes.use("/location", locationRouter);
 routes.use("/business", businessRouter);
 
