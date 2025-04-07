@@ -5,7 +5,7 @@ import businessRouter from "./components/business/business.router";
 import professionalRouter from "./components/professional/professional.router";
 
 const routes: Router = express.Router();
-routes.use("/users", userRouter);
+routes.use("/user", userRouter);
 routes.use("/location", locationRouter);
 routes.use("/business", businessRouter);
 routes.use("/professional", professionalRouter);
