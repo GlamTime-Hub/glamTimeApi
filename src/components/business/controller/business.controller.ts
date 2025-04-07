@@ -85,8 +85,6 @@ const addNewBusiness = async (
       userAuthId: id,
     };
 
-    console.log("businessData", businessData);
-
     const response = await newBusiness(businessData);
     res.status(201).json({
       data: response,
