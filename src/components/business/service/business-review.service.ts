@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
-import { ReviewBusiness } from "../model/reviewBusiness.model";
+import { BusinessReview } from "../model/business-review.model";
 
-const createReviewBusiness = async (review: any) => {
-  return await ReviewBusiness.create(review);
+const createBusinessReview = async (review: any) => {
+  return await BusinessReview.create(review);
 };
 
-const getReviewsBusinessById = async (businessId: string) => {
-  return await ReviewBusiness.aggregate([
+const getBusinessReviewById = async (businessId: string) => {
+  return await BusinessReview.aggregate([
     {
       $match: {
         businessId: new mongoose.Types.ObjectId(businessId),
@@ -29,10 +29,10 @@ const getReviewsBusinessById = async (businessId: string) => {
         name: "$user.name",
         urlPhoto: "$user.urlPhoto",
         rating: 1,
-        comment: 1,
+        review: 1,
       },
     },
   ]);
 };
 
-export { createReviewBusiness, getReviewsBusinessById };
+export { createBusinessReview, getBusinessReviewById };

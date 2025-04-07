@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import {
-  createReviewProfessional,
-  getReviewsProfessionalById,
-} from "../service/reviewProfessional.service";
+  createProfessionalReview,
+  getProfessionalReviewById,
+} from "../service/professional-review.service";
 
-const newReviewProfessional = async (
+const newProfessionalReview = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const review = await createReviewProfessional(req.body);
+    const review = await createProfessionalReview(req.body);
 
     res.status(201).json({
       message: "Review created successfully",
@@ -21,7 +21,7 @@ const newReviewProfessional = async (
   }
 };
 
-const reviewsProfessionalById = async (
+const professionalReviewById = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -29,7 +29,7 @@ const reviewsProfessionalById = async (
   try {
     const { professionalId } = req.params;
 
-    const reviews = await getReviewsProfessionalById(professionalId);
+    const reviews = await getProfessionalReviewById(professionalId);
 
     res.status(201).json({
       message: "successfully",
@@ -40,4 +40,4 @@ const reviewsProfessionalById = async (
   }
 };
 
-export { newReviewProfessional, reviewsProfessionalById };
+export { newProfessionalReview, professionalReviewById };
