@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IBusiness extends Document {
-  userId: mongoose.Types.ObjectId;
+  userAuthId: string;
   name: string;
   location: {
     address: string;
@@ -16,16 +16,11 @@ export interface IBusiness extends Document {
   country: mongoose.Types.ObjectId;
   city: mongoose.Types.ObjectId;
   isActive: boolean;
-  likes: number;
   urlPhoto: string;
 }
 
 const businessSchema: Schema = new Schema<IBusiness>({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Country",
-    required: true,
-  },
+  userAuthId: { type: String, required: true },
   name: { type: String, required: true },
   location: {
     address: { type: String, required: true },
@@ -44,7 +39,6 @@ const businessSchema: Schema = new Schema<IBusiness>({
   },
   city: { type: mongoose.Schema.Types.ObjectId, ref: "City", required: true },
   isActive: { type: Boolean, default: true },
-  likes: { type: Number, default: 0 },
   urlPhoto: { type: String, default: "" },
 });
 

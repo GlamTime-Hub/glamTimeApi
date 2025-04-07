@@ -3,7 +3,9 @@ import {
   getBusiness,
   getBusinessById,
   getTopBusinessesByLocation,
+  newBusiness,
 } from "../service/business.service";
+import { AuthenticatedRequest } from "../../../middleware/verifyTokens";
 
 const getAllBusiness = async (
   req: Request,
@@ -62,11 +64,36 @@ const getBusinessDetail = async (
 
     const business = await getBusinessById(id);
     res.status(201).json({
-      data: business,
+      data: business[0],
     });
   } catch (error) {
     next(error);
   }
 };
 
-export { getAllBusiness, getTopBusiness, getBusinessDetail };
+const addNewBusiness = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const body = req.body;
+    const { id } = req.user;
+
+    const businessData = {
+      ...body,
+      userAuthId: id,
+    };
+
+    console.log("businessData", businessData);
+
+    const response = await newBusiness(businessData);
+    res.status(201).json({
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { getAllBusiness, getTopBusiness, getBusinessDetail, addNewBusiness };

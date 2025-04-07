@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Business } from "../model/business.model";
+import { Business, IBusiness } from "../model/business.model";
 
 const getBusiness = async (
   name: string,
@@ -184,4 +184,13 @@ const getBusinessById = async (id: string) => {
   ]);
 };
 
-export { getBusiness, getTopBusinessesByLocation, getBusinessById };
+const newBusiness = async (business: IBusiness) => {
+  return Business.create(business);
+};
+
+export {
+  getBusiness,
+  getTopBusinessesByLocation,
+  getBusinessById,
+  newBusiness,
+};
