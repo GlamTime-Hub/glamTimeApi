@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { createReviewBusiness, getReviewsBusinessById } from "../service/reviewBusiness.service";
-
+import {
+  createBusinessReview,
+  getBusinessReviewById,
+} from "../service/business-review.service";
 
 const newReviewBusiness = async (
   req: Request,
@@ -8,7 +10,7 @@ const newReviewBusiness = async (
   next: NextFunction
 ) => {
   try {
-    const review = await createReviewBusiness(req.body);
+    const review = await createBusinessReview(req.body);
 
     res.status(201).json({
       message: "Review created successfully",
@@ -27,7 +29,7 @@ const reviewsBusinessById = async (
   try {
     const { businessId } = req.params;
 
-    const reviews = await getReviewsBusinessById(businessId);
+    const reviews = await getBusinessReviewById(businessId);
 
     res.status(201).json({
       message: "successfully",
