@@ -2,7 +2,6 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface IService extends Document {
   name: string;
-  description: string;
   status: string;
   price: number;
   subCategoryId: mongoose.Types.ObjectId;
@@ -12,7 +11,6 @@ export interface IService extends Document {
 
 const serviceSchema: Schema = new Schema<IService>({
   name: { type: String, required: true },
-  description: { type: String, required: true },
   status: { type: String, required: true },
   price: { type: Number, required: true },
   subCategoryId: {
