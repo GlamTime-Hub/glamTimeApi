@@ -34,7 +34,6 @@ const updateNotificationPreference = async (
   userAuthId: string,
   notificationPreference: any
 ) => {
-  console.log("notificationPreference", notificationPreference);
   return await User.findOneAndUpdate(
     { userAuthId: userAuthId },
     {

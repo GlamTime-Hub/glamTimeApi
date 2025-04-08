@@ -2,8 +2,10 @@ import { NextFunction, Response, Request } from "express";
 import {
   getBusiness,
   getBusinessById,
+  getBusinessByUserAuthId,
   getTopBusinessesByLocation,
   newBusiness,
+  updateBusinessImageProfile,
 } from "../service/business.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyTokens";
 
@@ -94,4 +96,50 @@ const addNewBusiness = async (
   }
 };
 
-export { getAllBusiness, getTopBusiness, getBusinessDetail, addNewBusiness };
+const getBusinessByUserId = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.user;
+    const response = await getBusinessByUserAuthId(id);
+    res.status(201).json({
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateBusinessImage = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id, urlPhoto } = req.body;
+
+    const business = await updateBusinessImageProfile(id, urlPhoto);
+
+    if (!business) {
+      res.status(404).json({ message: "Usuario no encontrado" });
+      return;
+    }
+
+    res.status(201).json({
+      data: business,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  getAllBusiness,
+  getTopBusiness,
+  getBusinessDetail,
+  addNewBusiness,
+  getBusinessByUserId,
+  updateBusinessImage,
+};
