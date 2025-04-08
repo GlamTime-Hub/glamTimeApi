@@ -1,5 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { getProfessional } from "../service/professional.service";
+import {
+  deactivateProfessional,
+  getProfessional,
+  getProfessionalsByBusinessId,
+} from "../service/professional.service";
 
 const getProfessionalByBusinessId = async (
   req: Request,
@@ -10,7 +14,7 @@ const getProfessionalByBusinessId = async (
     const { businessId } = req.params;
     const professional = await getProfessional(businessId);
     res.status(200).json({
-      message: "Successful",
+      status: true,
       data: professional,
     });
   } catch (error) {
@@ -18,4 +22,45 @@ const getProfessionalByBusinessId = async (
   }
 };
 
-export { getProfessionalByBusinessId };
+const getProfessionalsByBusiness = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { businessId } = req.params;
+    const professionals = await getProfessionalsByBusinessId(businessId);
+
+    res.status(200).json({
+      status: true,
+      data: professionals,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deactivateProfessionalsByBusiness = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { businessId, id } = req.body;
+    console.log("businessId", businessId);
+    console.log("id", id);
+    await deactivateProfessional(id, businessId);
+
+    res.status(200).json({
+      status: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  getProfessionalByBusinessId,
+  getProfessionalsByBusiness,
+  deactivateProfessionalsByBusiness,
+};

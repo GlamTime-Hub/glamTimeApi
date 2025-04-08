@@ -45,6 +45,10 @@ const updateNotificationPreference = async (
   ).lean();
 };
 
+const getUserByEmail = async (email: string) => {
+  return await User.findOne({ email }).lean().exec();
+};
+
 export {
   createUser,
   getUserById,
@@ -52,4 +56,5 @@ export {
   updateUserById,
   updateUserImageProfile,
   updateNotificationPreference,
+  getUserByEmail,
 };

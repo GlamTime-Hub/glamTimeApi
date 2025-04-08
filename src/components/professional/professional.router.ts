@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { getProfessionalByBusinessId } from "./controller/professional.controller";
+import {
+  deactivateProfessionalsByBusiness,
+  getProfessionalByBusinessId,
+  getProfessionalsByBusiness,
+} from "./controller/professional.controller";
 import {
   newProfessionalReview,
   professionalReviewById,
@@ -11,5 +15,16 @@ professionalRouter.get("/by-business/:businessId", getProfessionalByBusinessId);
 
 professionalRouter.post("/review", newProfessionalReview);
 professionalRouter.get("/review/:professionalId", professionalReviewById);
+
+//listos
+professionalRouter.get(
+  "/get-professional-by-business-id/:businessId",
+  getProfessionalsByBusiness
+);
+
+professionalRouter.post(
+  "/deactivate-professional",
+  deactivateProfessionalsByBusiness
+);
 
 export default professionalRouter;

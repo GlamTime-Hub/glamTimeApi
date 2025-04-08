@@ -250,6 +250,22 @@ const updateBusinessImageProfile = async (
   ).lean();
 };
 
+const updateBusiness = async (business: IBusiness) => {
+  return await Business.findOneAndUpdate({ _id: business._id }, business, {
+    new: true,
+  }).lean();
+};
+
+const updateBusinessLocation = async (businessId: string, location: any) => {
+  return await Business.findOneAndUpdate(
+    { _id: businessId },
+    { location },
+    {
+      new: true,
+    }
+  ).lean();
+};
+
 export {
   getBusiness,
   getTopBusinessesByLocation,
@@ -257,4 +273,6 @@ export {
   newBusiness,
   getBusinessByUserAuthId,
   updateBusinessImageProfile,
+  updateBusiness,
+  updateBusinessLocation,
 };
