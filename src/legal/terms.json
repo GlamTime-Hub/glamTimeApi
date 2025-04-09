@@ -1,0 +1,46 @@
+{
+  "title": "Términos y Condiciones de Uso",
+  "lastUpdated": "Última actualización: 2025-04-08",
+  "sections": [
+    {
+      "title": "1. Sobre la aplicación",
+      "content": "GlamTime permite a los usuarios registrarse y agendar turnos en barberías o salones de belleza. También permite calificar y dejar comentarios sobre las empresas y profesionales que los atienden. Las empresas pueden registrar su negocio, administrar turnos, personal y acceder a funciones premium mediante suscripción."
+    },
+    {
+      "title": "2. Tipos de usuarios",
+      "content": "Existen dos tipos de usuarios: Clientes (quienes agendan turnos) y Empresas (barberías o salones que ofrecen sus servicios). Las empresas pueden asignar profesionales para que gestionen sus propios horarios y turnos."
+    },
+    {
+      "title": "3. Suscripciones y pagos",
+      "content": "Las empresas pueden adquirir una suscripción para que su negocio aparezca en la app y reciba reservas. Los precios y detalles se mostrarán en la app antes de confirmar la compra."
+    },
+    {
+      "title": "4. Interacciones y valoraciones",
+      "content": "Los usuarios pueden dejar comentarios y calificaciones (hasta 5 estrellas) sobre empresas y profesionales. GlamTime puede moderar contenido ofensivo o inapropiado."
+    },
+    {
+      "title": "5. Datos personales",
+      "content": "Recopilamos información como nombre, correo, teléfono, ubicación, género, día y mes de nacimiento, imagen de perfil, y nombre de empresa. Esta información es usada solo para el funcionamiento de la app y no se comparte con terceros no autorizados."
+    },
+    {
+      "title": "6. Eliminación de cuenta",
+      "content": "Los usuarios pueden solicitar la eliminación de su cuenta y datos personales desde la configuración de la app."
+    },
+    {
+      "title": "7. Servicios de terceros",
+      "content": "Usamos servicios como MongoDB, Supabase y otros para operar la app. Estos proveedores también manejan políticas de privacidad propias."
+    },
+    {
+      "title": "8. Responsabilidad",
+      "content": "GlamTime actúa como intermediario entre empresas y clientes, y no se hace responsable por cancelaciones, calidad del servicio, o desacuerdos entre las partes."
+    },
+    {
+      "title": "9. Cambios en los términos",
+      "content": "Podemos modificar estos términos. Notificaremos los cambios importantes. El uso continuo implica aceptación."
+    },
+    {
+      "title": "10. Contacto",
+      "content": "Para dudas o soporte, contáctanos desde la sección correspondiente en la app."
+    }
+  ]
+}

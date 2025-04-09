@@ -120,7 +120,7 @@ const activeServiceByBusiness = async (activeService: any) => {
   return await Service.findByIdAndUpdate(
     activeService.serviceId,
     {
-      status: true,
+      status: false,
       duration: activeService.duration,
       price: activeService.price,
     },
