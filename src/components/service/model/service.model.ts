@@ -1,31 +1,35 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IService extends Document {
-  name: string;
-  description: string;
-  status: string;
+  business: mongoose.Types.ObjectId;
+  status: boolean;
   price: number;
-  subCategoryId: mongoose.Types.ObjectId;
-  categoryId: mongoose.Types.ObjectId;
+  subCategory: mongoose.Types.ObjectId;
+  category: mongoose.Types.ObjectId;
   duration: number;
+  createdAt: Date;
 }
 
 const serviceSchema: Schema = new Schema<IService>({
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-  status: { type: String, required: true },
+  status: { type: Boolean, required: false, default: false },
   price: { type: Number, required: true },
-  subCategoryId: {
+  business: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Business",
+    required: true,
+  },
+  subCategory: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "SubCategory",
     required: true,
   },
-  categoryId: {
+  category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",
     required: true,
   },
   duration: { type: Number, required: true },
+  createdAt: { type: Date, default: Date.now },
 });
 
 export const Service = mongoose.model<IService>("Service", serviceSchema);

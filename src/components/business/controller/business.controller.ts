@@ -203,9 +203,6 @@ const sendInvitationToProfessional = async (
     const { email } = req.body;
     const user = await getUserByEmail(email);
 
-    console.log("businessId", businessId);
-    console.log("user", user);
-
     if (!user) {
       res.status(404).json({ message: "Usuario no encontrado" });
       return;

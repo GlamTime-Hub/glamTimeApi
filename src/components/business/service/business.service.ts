@@ -212,6 +212,26 @@ const getBusinessByUserAuthId = async (userAuthId: string) => {
       },
     },
     {
+      $lookup: {
+        from: "businesslikes",
+        let: { businessId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$businessId", "$$businessId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalLikes: { $sum: 1 },
+            },
+          },
+        ],
+        as: "likeStats",
+      },
+    },
+    {
       $addFields: {
         rating: {
           $ifNull: [{ $arrayElemAt: ["$reviewStats.rating", 0] }, 0],
@@ -219,11 +239,15 @@ const getBusinessByUserAuthId = async (userAuthId: string) => {
         receivedReviews: {
           $ifNull: [{ $arrayElemAt: ["$reviewStats.receivedReviews", 0] }, 0],
         },
+        likes: {
+          $ifNull: [{ $arrayElemAt: ["$likeStats.totalLikes", 0] }, 0],
+        },
       },
     },
     {
       $project: {
         reviewStats: 0,
+        likeStats: 0,
       },
     }
   );

@@ -1,4 +1,4 @@
-import { Service } from "../components/service/model/service.service";
+import { Service } from "../components/service/model/service.model";
 
 const servicesData = [
   {
