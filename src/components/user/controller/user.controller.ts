@@ -6,6 +6,7 @@ import {
   updateUserById,
   updateUserImageProfile,
   updateNotificationPreference,
+  getUserAllReviews,
 } from "../service/user.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyTokens";
 import { supabase } from "../../../config/supabase";
@@ -149,10 +150,29 @@ const updateNotificationUser = async (
   }
 };
 
+const allUserReviews = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.user;
+
+    const reviews = await getUserAllReviews(id);
+
+    res.status(200).json({
+      data: reviews,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   newUser,
   getUserProfileById,
   updateUser,
   updateUserImage,
   updateNotificationUser,
+  allUserReviews,
 };

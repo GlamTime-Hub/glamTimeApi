@@ -1,3 +1,5 @@
+import { BusinessReview } from "../../business/model/business-review.model";
+import { ProfessionalReview } from "../../professional/model/professional-review.model";
 import { IUser, User } from "../model/user.model";
 
 const existsUser = async (email: string) => {
@@ -45,6 +47,63 @@ const updateNotificationPreference = async (
   ).lean();
 };
 
+const getUserAllReviews = async (userAuthId: string) => {
+  const professionalReviews = await ProfessionalReview.aggregate([
+    { $match: { userAuthId } },
+    {
+      $lookup: {
+        from: "professionals",
+        localField: "professionalId",
+        foreignField: "_id",
+        as: "professional",
+      },
+    },
+    { $unwind: "$professional" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "professional.userAuthId",
+        foreignField: "userAuthId",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        _id: 1,
+        review: 1,
+        rating: 1,
+        name: "$user.name",
+        photo: "$user.urlPhoto",
+      },
+    },
+  ]);
+
+  const businessReviews = await BusinessReview.aggregate([
+    { $match: { userAuthId } },
+    {
+      $lookup: {
+        from: "businesses",
+        localField: "businessId",
+        foreignField: "_id",
+        as: "business",
+      },
+    },
+    { $unwind: "$business" },
+    {
+      $project: {
+        _id: 1,
+        review: 1,
+        rating: 1,
+        name: "$business.name",
+        photo: "$business.urlPhoto",
+      },
+    },
+  ]);
+
+  return [...professionalReviews, ...businessReviews];
+};
+
 export {
   createUser,
   getUserById,
@@ -52,4 +111,5 @@ export {
   updateUserById,
   updateUserImageProfile,
   updateNotificationPreference,
+  getUserAllReviews,
 };

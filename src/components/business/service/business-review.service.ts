@@ -15,8 +15,8 @@ const getBusinessReviewById = async (businessId: string) => {
     {
       $lookup: {
         from: "users",
-        localField: "userId",
-        foreignField: "_id",
+        localField: "userAuthId",
+        foreignField: "userAuthId",
         as: "user",
       },
     },

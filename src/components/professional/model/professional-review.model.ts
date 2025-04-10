@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IProfessionalReview extends Document {
-  userId: mongoose.Types.ObjectId;
+  userAuthId: string;
   professionalId: mongoose.Types.ObjectId;
   rating: number;
   review: string;
@@ -9,11 +9,7 @@ export interface IProfessionalReview extends Document {
 }
 
 const professionalReviewSchema: Schema = new Schema<IProfessionalReview>({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
+  userAuthId: { type: String, required: true },
   professionalId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Professional",
