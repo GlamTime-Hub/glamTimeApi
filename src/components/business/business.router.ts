@@ -6,6 +6,9 @@ import {
   addNewBusiness,
   getBusinessByUserId,
   updateBusinessImage,
+  updateBusinessById,
+  updateBusinessLocationById,
+  sendInvitationToProfessional,
 } from "./controller/business.controller";
 import { verifyToken } from "../../middleware/verifyToken";
 import {
@@ -29,6 +32,18 @@ businessRouter.get(
   "/get-business-by-user-id",
   verifyToken,
   getBusinessByUserId
+);
+businessRouter.put("/:id", verifyToken, updateBusinessById);
+businessRouter.put(
+  "/update-location/:id",
+  verifyToken,
+  updateBusinessLocationById
+);
+
+businessRouter.put(
+  "/send-invitation/:businessId",
+  verifyToken,
+  sendInvitationToProfessional
 );
 
 export default businessRouter;

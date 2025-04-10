@@ -212,6 +212,26 @@ const getBusinessByUserAuthId = async (userAuthId: string) => {
       },
     },
     {
+      $lookup: {
+        from: "businesslikes",
+        let: { businessId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$businessId", "$$businessId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalLikes: { $sum: 1 },
+            },
+          },
+        ],
+        as: "likeStats",
+      },
+    },
+    {
       $addFields: {
         rating: {
           $ifNull: [{ $arrayElemAt: ["$reviewStats.rating", 0] }, 0],
@@ -219,11 +239,15 @@ const getBusinessByUserAuthId = async (userAuthId: string) => {
         receivedReviews: {
           $ifNull: [{ $arrayElemAt: ["$reviewStats.receivedReviews", 0] }, 0],
         },
+        likes: {
+          $ifNull: [{ $arrayElemAt: ["$likeStats.totalLikes", 0] }, 0],
+        },
       },
     },
     {
       $project: {
         reviewStats: 0,
+        likeStats: 0,
       },
     }
   );
@@ -250,6 +274,22 @@ const updateBusinessImageProfile = async (
   ).lean();
 };
 
+const updateBusiness = async (business: IBusiness) => {
+  return await Business.findOneAndUpdate({ _id: business._id }, business, {
+    new: true,
+  }).lean();
+};
+
+const updateBusinessLocation = async (businessId: string, location: any) => {
+  return await Business.findOneAndUpdate(
+    { _id: businessId },
+    { location },
+    {
+      new: true,
+    }
+  ).lean();
+};
+
 export {
   getBusiness,
   getTopBusinessesByLocation,
@@ -257,4 +297,6 @@ export {
   newBusiness,
   getBusinessByUserAuthId,
   updateBusinessImageProfile,
+  updateBusiness,
+  updateBusinessLocation,
 };

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Professional } from "../model/professional.model";
+import { IProfessional, Professional } from "../model/professional.model";
 
 const getProfessional = async (businessId: string) => {
   return await Professional.aggregate([
@@ -32,4 +32,33 @@ const getProfessional = async (businessId: string) => {
   ]);
 };
 
-export { getProfessional };
+const newProfessional = async (professional: IProfessional) => {
+  return await Professional.create(professional);
+};
+
+const getProfessionalsByBusinessId = async (businessId: string) => {
+  return await Professional.find({ businessId, status: true })
+    .populate("user", "_id name email phoneNumber urlPhoto ")
+    .lean()
+    .exec();
+};
+
+const deactivateProfessional = async (
+  professionalId: string,
+  businessId: string
+) => {
+  return await Professional.findOneAndUpdate(
+    { _id: professionalId, businessId },
+    { status: false },
+    {
+      new: true,
+    }
+  ).lean();
+};
+
+export {
+  getProfessional,
+  newProfessional,
+  getProfessionalsByBusinessId,
+  deactivateProfessional,
+};

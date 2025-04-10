@@ -6,8 +6,14 @@ import {
   getTopBusinessesByLocation,
   newBusiness,
   updateBusinessImageProfile,
+  updateBusiness,
+  updateBusinessLocation,
 } from "../service/business.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyTokens";
+import { getUserByEmail } from "../../user/service/user.service";
+import mongoose from "mongoose";
+import { newProfessional } from "../../professional/service/professional.service";
+import { IProfessional } from "../../professional/model/professional.model";
 
 const getAllBusiness = async (
   req: Request,
@@ -123,12 +129,94 @@ const updateBusinessImage = async (
     const business = await updateBusinessImageProfile(id, urlPhoto);
 
     if (!business) {
-      res.status(404).json({ message: "Usuario no encontrado" });
+      res.status(404).json({ message: "Negocio no encontrado" });
       return;
     }
 
     res.status(201).json({
       data: business,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateBusinessById = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id, ...rest } = req.body;
+
+    const business = {
+      ...rest,
+      _id: id,
+    };
+
+    const response = await updateBusiness(business);
+
+    if (!response) {
+      res.status(404).json({ message: "Negocio no encontrado" });
+      return;
+    }
+
+    res.status(201).json({
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateBusinessLocationById = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    console.log("amigo???");
+    const { id } = req.params;
+    const body = req.body;
+    console.log("location", body);
+    const response = await updateBusinessLocation(id, body);
+    if (!response) {
+      res.status(404).json({ message: "Negocio no encontrado" });
+      return;
+    }
+
+    res.status(201).json({
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const sendInvitationToProfessional = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { businessId } = req.params;
+    const { email } = req.body;
+    const user = await getUserByEmail(email);
+
+    if (!user) {
+      res.status(404).json({ message: "Usuario no encontrado" });
+      return;
+    }
+
+    const professional = {
+      businessId: new mongoose.Types.ObjectId(businessId),
+      user: user._id,
+    };
+
+    await newProfessional(professional as IProfessional);
+
+    res.status(201).json({
+      data: true,
     });
   } catch (error) {
     next(error);
@@ -142,4 +230,7 @@ export {
   addNewBusiness,
   getBusinessByUserId,
   updateBusinessImage,
+  updateBusinessById,
+  updateBusinessLocationById,
+  sendInvitationToProfessional,
 };

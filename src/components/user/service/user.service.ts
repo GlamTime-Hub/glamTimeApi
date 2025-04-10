@@ -103,7 +103,9 @@ const getUserAllReviews = async (userAuthId: string) => {
 
   return [...professionalReviews, ...businessReviews];
 };
-
+const getUserByEmail = async (email: string) => {
+  return await User.findOne({ email }).lean().exec();
+};
 export {
   createUser,
   getUserById,
@@ -112,4 +114,5 @@ export {
   updateUserImageProfile,
   updateNotificationPreference,
   getUserAllReviews,
+  getUserByEmail,
 };
