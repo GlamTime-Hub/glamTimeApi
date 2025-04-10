@@ -8,6 +8,7 @@ import {
   updateBusinessImageProfile,
   updateBusiness,
   updateBusinessLocation,
+  handleBusinessStatus,
 } from "../service/business.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyTokens";
 import { getUserByEmail } from "../../user/service/user.service";
@@ -223,6 +224,23 @@ const sendInvitationToProfessional = async (
   }
 };
 
+const handleBusinessStatusById = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id, isActive } = req.body;
+    await handleBusinessStatus(id, isActive);
+
+    res.status(201).json({
+      data: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   getAllBusiness,
   getTopBusiness,
@@ -232,5 +250,6 @@ export {
   updateBusinessImage,
   updateBusinessById,
   updateBusinessLocationById,
+  handleBusinessStatusById,
   sendInvitationToProfessional,
 };

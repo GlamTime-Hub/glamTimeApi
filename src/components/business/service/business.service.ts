@@ -290,6 +290,16 @@ const updateBusinessLocation = async (businessId: string, location: any) => {
   ).lean();
 };
 
+const handleBusinessStatus = async (businessId: string, isActive: boolean) => {
+  return await Business.findOneAndUpdate(
+    { _id: businessId },
+    { isActive },
+    {
+      new: true,
+    }
+  ).lean();
+};
+
 export {
   getBusiness,
   getTopBusinessesByLocation,
@@ -299,4 +309,5 @@ export {
   updateBusinessImageProfile,
   updateBusiness,
   updateBusinessLocation,
+  handleBusinessStatus,
 };

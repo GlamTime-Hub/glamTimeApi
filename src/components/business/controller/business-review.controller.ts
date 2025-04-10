@@ -21,7 +21,7 @@ const newReviewBusiness = async (
     const review = await createBusinessReview(newReview);
 
     res.status(201).json({
-      message: "Review created successfully",
+      status: true,
       data: review,
     });
   } catch (error) {
@@ -40,7 +40,7 @@ const reviewsBusinessById = async (
     const reviews = await getBusinessReviewById(businessId);
 
     res.status(201).json({
-      message: "successfully",
+      status: true,
       data: reviews,
     });
   } catch (error) {
