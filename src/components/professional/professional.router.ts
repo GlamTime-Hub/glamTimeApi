@@ -8,12 +8,13 @@ import {
   newProfessionalReview,
   professionalReviewById,
 } from "./controller/professional-review.controller";
+import { verifyToken } from "../../middleware/verifyToken";
 
 const professionalRouter: Router = Router();
 
 professionalRouter.get("/by-business/:businessId", getProfessionalByBusinessId);
 
-professionalRouter.post("/review", newProfessionalReview);
+professionalRouter.post("/review", verifyToken, newProfessionalReview);
 professionalRouter.get("/review/:professionalId", professionalReviewById);
 
 //listos

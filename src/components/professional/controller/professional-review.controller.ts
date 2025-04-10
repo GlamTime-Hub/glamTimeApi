@@ -3,14 +3,22 @@ import {
   createProfessionalReview,
   getProfessionalReviewById,
 } from "../service/professional-review.service";
+import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 
 const newProfessionalReview = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const review = await createProfessionalReview(req.body);
+    const { id } = req.user;
+
+    const newReview = {
+      userAuthId: id,
+      ...req.body,
+    };
+
+    const review = await createProfessionalReview(newReview);
 
     res.status(201).json({
       message: "Review created successfully",

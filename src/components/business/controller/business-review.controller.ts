@@ -3,14 +3,22 @@ import {
   createBusinessReview,
   getBusinessReviewById,
 } from "../service/business-review.service";
+import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 
 const newReviewBusiness = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const review = await createBusinessReview(req.body);
+    const { id } = req.user;
+
+    const newReview = {
+      userAuthId: id,
+      ...req.body,
+    };
+
+    const review = await createBusinessReview(newReview);
 
     res.status(201).json({
       message: "Review created successfully",
