@@ -15,6 +15,7 @@ import { getUserByEmail } from "../../user/service/user.service";
 import mongoose from "mongoose";
 import { newProfessional } from "../../professional/service/professional.service";
 import { IProfessional } from "../../professional/model/professional.model";
+import { newNotification } from "../../notification/service/notification.service";
 
 const getAllBusiness = async (
   req: Request,
@@ -213,10 +214,21 @@ const sendInvitationToProfessional = async (
     const professional = {
       businessId: new mongoose.Types.ObjectId(businessId),
       user: user._id,
-      userAuthId: id,
+      userAuthId: user.userAuthId,
     };
 
     await newProfessional(professional as IProfessional);
+
+    const notification = {
+      user: user._id,
+      message: `Has sido invitado a trabajar en el negocio`,
+      type: "invitation",
+      business: businessId,
+      userAuthId: user.userAuthId,
+      fromUser: id,
+    };
+
+    await newNotification(notification);
 
     res.status(201).json({
       data: true,

@@ -72,6 +72,21 @@ const deactivateProfessional = async (
   ).lean();
 };
 
+const handleInvitation = async (
+  userId: string,
+  businessId: string,
+  invitationStatus: string
+) => {
+  if (invitationStatus === "invitation-accepted") {
+    return await Professional.findOneAndUpdate(
+      { user: userId, businessId },
+      { invitationStatus, isActive: true }
+    );
+  }
+
+  return await Professional.findOneAndDelete({ user: userId, businessId });
+};
+
 export {
   getProfessionals,
   newProfessional,
@@ -79,4 +94,5 @@ export {
   deactivateProfessional,
   getProfessionalById,
   updateProfessionalsById,
+  handleInvitation,
 };

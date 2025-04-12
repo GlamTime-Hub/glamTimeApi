@@ -5,6 +5,7 @@ import {
   getProfessionalsByBusinessId,
   getProfessionalById,
   updateProfessionalsById,
+  handleInvitation,
 } from "../service/professional.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 
@@ -97,10 +98,35 @@ const updateProfessional = async (
   }
 };
 
+const handleInvitatinProfessional = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { invitation } = req.body;
+
+    await handleInvitation(
+      invitation.userId,
+      invitation.businessId,
+      invitation.invitationStatus
+    );
+
+    //Hanlde notification
+
+    res.status(200).json({
+      status: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   getProfessionalByBusinessId,
   getProfessionalsByBusiness,
   deactivateProfessionalsByBusiness,
   getProfessional,
   updateProfessional,
+  handleInvitatinProfessional,
 };
