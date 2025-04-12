@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { IProfessional, Professional } from "../model/professional.model";
 
-const getProfessional = async (businessId: string) => {
+const getProfessionals = async (businessId: string) => {
   return await Professional.aggregate([
     {
       $match: {
@@ -37,8 +37,24 @@ const newProfessional = async (professional: IProfessional) => {
 };
 
 const getProfessionalsByBusinessId = async (businessId: string) => {
-  return await Professional.find({ businessId, status: true })
-    .populate("user", "_id name email phoneNumber urlPhoto ")
+  return await Professional.find({ businessId, isActive: true })
+    .populate("user", "_id name email phoneNumber urlPhoto")
+    .lean()
+    .exec();
+};
+
+const getProfessionalById = async (userId: string) => {
+  return await Professional.find({ userAuthId: userId })
+    .populate("user", "_id name email phoneNumber urlPhoto")
+    .lean()
+    .exec();
+};
+
+const updateProfessionalsById = async (userId: string, professional: any) => {
+  const { _id, ...rest } = professional;
+  return await Professional.findOneAndUpdate({ user: userId }, rest, {
+    new: true,
+  })
     .lean()
     .exec();
 };
@@ -49,7 +65,7 @@ const deactivateProfessional = async (
 ) => {
   return await Professional.findOneAndUpdate(
     { _id: professionalId, businessId },
-    { status: false },
+    { isActive: false },
     {
       new: true,
     }
@@ -57,8 +73,10 @@ const deactivateProfessional = async (
 };
 
 export {
-  getProfessional,
+  getProfessionals,
   newProfessional,
   getProfessionalsByBusinessId,
   deactivateProfessional,
+  getProfessionalById,
+  updateProfessionalsById,
 };

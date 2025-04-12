@@ -202,6 +202,7 @@ const sendInvitationToProfessional = async (
   try {
     const { businessId } = req.params;
     const { email } = req.body;
+    const { id } = req.user;
     const user = await getUserByEmail(email);
 
     if (!user) {
@@ -212,6 +213,7 @@ const sendInvitationToProfessional = async (
     const professional = {
       businessId: new mongoose.Types.ObjectId(businessId),
       user: user._id,
+      userAuthId: id,
     };
 
     await newProfessional(professional as IProfessional);

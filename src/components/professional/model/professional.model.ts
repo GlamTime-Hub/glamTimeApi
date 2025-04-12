@@ -4,7 +4,7 @@ export interface IProfessional extends Document {
   userAuthId: string;
   businessId: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
-  status: boolean;
+  isActive: boolean;
   workingHours: {
     monday: { start: number; end: number };
     tuesday: { start: number; end: number };
@@ -29,7 +29,7 @@ const professionalSchema: Schema = new Schema<IProfessional>({
     ref: "User",
     required: true,
   },
-  status: { type: Boolean, required: false, default: true },
+  isActive: { type: Boolean, required: false, default: true },
   invitationStatus: { type: String, required: false, default: "pending" },
   workingHours: {
     monday: {

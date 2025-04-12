@@ -3,6 +3,8 @@ import {
   deactivateProfessionalsByBusiness,
   getProfessionalByBusinessId,
   getProfessionalsByBusiness,
+  getProfessional,
+  updateProfessional,
 } from "./controller/professional.controller";
 import {
   newProfessionalReview,
@@ -20,12 +22,24 @@ professionalRouter.get("/review/:professionalId", professionalReviewById);
 //listos
 professionalRouter.get(
   "/get-professional-by-business-id/:businessId",
+  verifyToken,
   getProfessionalsByBusiness
 );
 
 professionalRouter.post(
   "/deactivate-professional",
+  verifyToken,
   deactivateProfessionalsByBusiness
+);
+professionalRouter.get(
+  "/get-professional-by-id/:id",
+  verifyToken,
+  getProfessional
+);
+professionalRouter.post(
+  "/update-professional",
+  verifyToken,
+  updateProfessional
 );
 
 export default professionalRouter;
