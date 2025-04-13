@@ -1,8 +1,9 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
   getNotificationByUser,
   getTotalNotificationByUser,
+  markNotificationAsRead,
 } from "../service/notification.service";
 
 const getNotificationByUserId = async (
@@ -31,8 +32,6 @@ const getTotalNotificationByUserId = async (
     const { id } = req.user;
     const total = await getTotalNotificationByUser(id);
 
-    console.log("total", total);
-
     res.status(201).json({
       status: true,
       data: total.length > 0 ? total[0].totalUnread : 0,
@@ -42,4 +41,25 @@ const getTotalNotificationByUserId = async (
   }
 };
 
-export { getNotificationByUserId, getTotalNotificationByUserId };
+const markNotificationAsReadById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    await markNotificationAsRead(id);
+
+    res.status(201).json({
+      status: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  getNotificationByUserId,
+  getTotalNotificationByUserId,
+  markNotificationAsReadById,
+};

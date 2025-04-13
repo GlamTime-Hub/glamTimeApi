@@ -85,7 +85,7 @@ const getTotalNotificationByUser = async (userAuthId: string) => {
   ]);
 };
 
-const updateNotificationById = async (notificationId: string) => {
+const markNotificationAsRead = async (notificationId: string) => {
   return await Notification.findOneAndUpdate(
     { _id: notificationId },
     { isRead: true, readAt: new Date() },
@@ -97,5 +97,5 @@ export {
   newNotification,
   getNotificationByUser,
   getTotalNotificationByUser,
-  updateNotificationById,
+  markNotificationAsRead,
 };

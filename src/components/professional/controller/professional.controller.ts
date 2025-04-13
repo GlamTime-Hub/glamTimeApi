@@ -10,7 +10,7 @@ import {
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
   newNotification,
-  updateNotificationById,
+  markNotificationAsRead,
 } from "../../notification/service/notification.service";
 import { updateUserById } from "../../user/service/user.service";
 
@@ -121,7 +121,7 @@ const handleInvitationProfessional = async (
     );
 
     // marcamos la notificacion como leida
-    await updateNotificationById(invitation.notificationId);
+    await markNotificationAsRead(invitation.notificationId);
 
     if (invitation.invitationStatus === "invitation-accepted") {
       // cambiamos rol del user
