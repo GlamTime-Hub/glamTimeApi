@@ -2,8 +2,14 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface INotification extends Document {
   message: string;
-  userAuthId: string;
-  user: mongoose.Types.ObjectId;
+  from: {
+    user: mongoose.Types.ObjectId;
+    userAuthId: string;
+  };
+  to: {
+    user: mongoose.Types.ObjectId;
+    userAuthId: string;
+  };
   business: mongoose.Types.ObjectId;
   isRead: boolean;
   createdAt: Date;
@@ -20,12 +26,22 @@ export interface INotification extends Document {
 
 const notificationSchema: Schema = new Schema<INotification>({
   message: { type: String, required: true },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+  from: {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    userAuthId: { type: String, required: true },
   },
-  userAuthId: { type: String, required: true },
+  to: {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    userAuthId: { type: String, required: true },
+  },
   business: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Business",

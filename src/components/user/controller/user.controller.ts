@@ -85,8 +85,6 @@ const updateUser = async (
   try {
     const body = req.body;
 
-    console.log("body", body);
-
     const user = await updateUserById(body);
 
     if (!user) {

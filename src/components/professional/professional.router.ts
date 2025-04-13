@@ -2,9 +2,10 @@ import { Router } from "express";
 import {
   deactivateProfessionalsByBusiness,
   getProfessionalByBusinessId,
-  getProfessionalsByBusiness,
+  getAllProfessionalsByBusiness,
   getProfessional,
   updateProfessional,
+  handleInvitationProfessional,
 } from "./controller/professional.controller";
 import {
   newProfessionalReview,
@@ -23,7 +24,7 @@ professionalRouter.get("/review/:professionalId", professionalReviewById);
 professionalRouter.get(
   "/get-professional-by-business-id/:businessId",
   verifyToken,
-  getProfessionalsByBusiness
+  getAllProfessionalsByBusiness
 );
 
 professionalRouter.post(
@@ -40,6 +41,12 @@ professionalRouter.post(
   "/update-professional",
   verifyToken,
   updateProfessional
+);
+
+professionalRouter.post(
+  "/handle-invitation",
+  verifyToken,
+  handleInvitationProfessional
 );
 
 export default professionalRouter;

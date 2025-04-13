@@ -8,6 +8,11 @@ import {
   handleInvitation,
 } from "../service/professional.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
+import {
+  newNotification,
+  updateNotificationById,
+} from "../../notification/service/notification.service";
+import { updateUserById } from "../../user/service/user.service";
 
 const getProfessionalByBusinessId = async (
   req: Request,
@@ -26,14 +31,14 @@ const getProfessionalByBusinessId = async (
   }
 };
 
-const getProfessionalsByBusiness = async (
+const getAllProfessionalsByBusiness = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { businessId } = req.params;
-    const professionals = await getProfessionalsByBusinessId(businessId);
+    const professionals = await getProfessionalsByBusinessId(businessId, false);
 
     console.log(professionals);
 
@@ -98,7 +103,7 @@ const updateProfessional = async (
   }
 };
 
-const handleInvitatinProfessional = async (
+const handleInvitationProfessional = async (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
@@ -106,27 +111,60 @@ const handleInvitatinProfessional = async (
   try {
     const { invitation } = req.body;
 
+    console.log("invitation", invitation);
+
+    //actualizamos el profesional con el estado de la invitacion
     await handleInvitation(
-      invitation.userId,
+      invitation.toUser.user,
       invitation.businessId,
       invitation.invitationStatus
     );
 
-    //Hanlde notification
+    // marcamos la notificacion como leida
+    await updateNotificationById(invitation.notificationId);
+
+    if (invitation.invitationStatus === "invitation-accepted") {
+      // cambiamos rol del user
+      await updateUserById({
+        userAuthId: invitation.toUser.userAuthId,
+        role: "professional",
+      });
+    }
+
+    //Notificamos al admin la respuesta del professional
+    const notification = {
+      business: invitation.businessId,
+      message:
+        invitation.invitationStatus === "invitation-accepted"
+          ? `Ha aceptado trabajar contigo`
+          : `Ha rechazado la solicitud de unirte a tu equipo`,
+      to: {
+        user: invitation.fromUser.user,
+        userAuthId: invitation.fromUser.userAuthId,
+      },
+      from: {
+        userAuthId: invitation.toUser.userAuthId,
+        user: invitation.toUser.user,
+      },
+      type: invitation.invitationStatus,
+    };
+
+    await newNotification(notification);
 
     res.status(200).json({
       status: true,
     });
   } catch (error) {
+    console.log("error", error);
     next(error);
   }
 };
 
 export {
   getProfessionalByBusinessId,
-  getProfessionalsByBusiness,
+  getAllProfessionalsByBusiness,
   deactivateProfessionalsByBusiness,
   getProfessional,
   updateProfessional,
-  handleInvitatinProfessional,
+  handleInvitationProfessional,
 };

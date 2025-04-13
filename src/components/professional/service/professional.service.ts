@@ -36,8 +36,13 @@ const newProfessional = async (professional: IProfessional) => {
   return await Professional.create(professional);
 };
 
-const getProfessionalsByBusinessId = async (businessId: string) => {
-  return await Professional.find({ businessId, isActive: true })
+const getProfessionalsByBusinessId = async (
+  businessId: string,
+  useIsActive: boolean
+) => {
+  const query = useIsActive ? { businessId, isActive: true } : { businessId };
+
+  return await Professional.find(query)
     .populate("user", "_id name email phoneNumber urlPhoto")
     .lean()
     .exec();
@@ -80,7 +85,7 @@ const handleInvitation = async (
   if (invitationStatus === "invitation-accepted") {
     return await Professional.findOneAndUpdate(
       { user: userId, businessId },
-      { invitationStatus, isActive: true }
+      { invitationStatus, isActive: true, startWorking: new Date() }
     );
   }
 

@@ -11,7 +11,10 @@ import {
   handleBusinessStatus,
 } from "../service/business.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyTokens";
-import { getUserByEmail } from "../../user/service/user.service";
+import {
+  getUserByEmail,
+  getUserByUserAuthId,
+} from "../../user/service/user.service";
 import mongoose from "mongoose";
 import { newProfessional } from "../../professional/service/professional.service";
 import { IProfessional } from "../../professional/model/professional.model";
@@ -204,28 +207,34 @@ const sendInvitationToProfessional = async (
     const { businessId } = req.params;
     const { email } = req.body;
     const { id } = req.user;
-    const user = await getUserByEmail(email);
+    const userTo = await getUserByEmail(email);
+    const userFrom = await getUserByUserAuthId(id);
 
-    if (!user) {
+    if (!userTo) {
       res.status(404).json({ message: "Usuario no encontrado" });
       return;
     }
 
     const professional = {
       businessId: new mongoose.Types.ObjectId(businessId),
-      user: user._id,
-      userAuthId: user.userAuthId,
+      user: userTo._id,
+      userAuthId: userTo.userAuthId,
     };
 
     await newProfessional(professional as IProfessional);
 
     const notification = {
-      user: user._id,
-      message: `Has sido invitado a trabajar en el negocio`,
-      type: "invitation",
       business: businessId,
-      userAuthId: user.userAuthId,
-      fromUser: id,
+      message: `Has sido invitado a trabajar en el negocio`,
+      to: {
+        user: userTo._id,
+        userAuthId: userTo.userAuthId,
+      },
+      from: {
+        userAuthId: id,
+        user: userFrom?._id,
+      },
+      type: "invitation",
     };
 
     await newNotification(notification);

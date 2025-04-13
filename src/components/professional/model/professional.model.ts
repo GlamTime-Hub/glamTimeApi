@@ -15,6 +15,7 @@ export interface IProfessional extends Document {
   };
   invitationStatus: string;
   createdAt: Date;
+  startWorking: Date;
 }
 
 const professionalSchema: Schema = new Schema<IProfessional>({
@@ -57,7 +58,8 @@ const professionalSchema: Schema = new Schema<IProfessional>({
       end: { type: Number, default: 18, required: false },
     },
   },
-  createdAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now, required: false },
+  startWorking: { type: Date, default: null, required: false },
 });
 
 export const Professional = mongoose.model<IProfessional>(

@@ -14,7 +14,7 @@ const getUserById = async (userAuthId: string) => {
   return await User.findOne({ userAuthId }).lean().exec();
 };
 
-const updateUserById = async (user: IUser) => {
+const updateUserById = async (user: Partial<IUser>) => {
   return await User.findOneAndUpdate({ userAuthId: user.userAuthId }, user, {
     new: true,
   }).lean();
@@ -106,6 +106,11 @@ const getUserAllReviews = async (userAuthId: string) => {
 const getUserByEmail = async (email: string) => {
   return await User.findOne({ email }).lean().exec();
 };
+
+const getUserByUserAuthId = async (userAuthId: string) => {
+  return await User.findOne({ userAuthId }).lean().exec();
+};
+
 export {
   createUser,
   getUserById,
@@ -115,4 +120,5 @@ export {
   updateNotificationPreference,
   getUserAllReviews,
   getUserByEmail,
+  getUserByUserAuthId,
 };
