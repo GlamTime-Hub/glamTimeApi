@@ -17,7 +17,11 @@ const professionalRouter: Router = Router();
 professionalRouter.get("/by-business/:businessId", getProfessionalByBusinessId);
 
 professionalRouter.post("/review", verifyToken, newProfessionalReview);
-professionalRouter.get("/review/:professionalId", professionalReviewById);
+professionalRouter.get(
+  "/review/:professionalId",
+  verifyToken,
+  professionalReviewById
+);
 
 //listos
 professionalRouter.get(
