@@ -136,8 +136,8 @@ const handleInvitationProfessional = async (
       business: invitation.businessId,
       message:
         invitation.invitationStatus === "invitation-accepted"
-          ? `Ha aceptado trabajar contigo`
-          : `Ha rechazado la solicitud de unirte a tu equipo`,
+          ? `Ha aceptado trabajar contigo.`
+          : `Ha rechazado la solicitud de unirte a tu equipo.`,
       to: {
         user: invitation.fromUser.user,
         userAuthId: invitation.fromUser.userAuthId,

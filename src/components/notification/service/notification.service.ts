@@ -7,7 +7,7 @@ const newNotification = async (notification: any) => {
 const getNotificationByUser = async (userAuthId: string) => {
   return await Notification.aggregate([
     {
-      $match: { "to.userAuthId": userAuthId },
+      $match: { "to.userAuthId": userAuthId, isRead: false },
     },
     {
       $lookup: {
