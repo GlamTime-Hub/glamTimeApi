@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getAllBusinessType,
   getCategories,
   getPrivacy,
   getSubcategoriesByCategory,
@@ -17,5 +18,6 @@ utilRouter.get(
 
 utilRouter.get("/terms", getTerms);
 utilRouter.get("/privacy", getPrivacy);
+utilRouter.get("/business-types", getAllBusinessType);
 
 export default utilRouter;
