@@ -6,6 +6,7 @@ import {
   getProfessionalById,
   updateProfessionalsById,
   handleInvitation,
+  updateWorkingHourStatus,
 } from "../service/professional.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
@@ -111,8 +112,6 @@ const handleInvitationProfessional = async (
   try {
     const { invitation } = req.body;
 
-    console.log("invitation", invitation);
-
     //actualizamos el profesional con el estado de la invitacion
     await handleInvitation(
       invitation.toUser.user,
@@ -155,7 +154,22 @@ const handleInvitationProfessional = async (
       status: true,
     });
   } catch (error) {
-    console.log("error", error);
+    next(error);
+  }
+};
+
+const handleWorkingHours = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { professionalId, day, isActive } = req.body;
+    await updateWorkingHourStatus(professionalId, day, isActive);
+    res.status(200).json({
+      status: true,
+    });
+  } catch (error) {
     next(error);
   }
 };
@@ -167,4 +181,5 @@ export {
   getProfessional,
   updateProfessional,
   handleInvitationProfessional,
+  handleWorkingHours,
 };

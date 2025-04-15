@@ -1,8 +1,9 @@
 import { NextFunction, Response } from "express";
-import { AuthenticatedRequest } from "../../../middleware/verifyTokens";
+import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
   activeServiceByBusiness,
   getServicesByBusinessId,
+  updateService,
 } from "../service/service.service";
 
 const getServicesByBusiness = async (
@@ -44,4 +45,22 @@ const activeService = async (
   }
 };
 
-export { getServicesByBusiness, activeService };
+const updateServiceById = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const body = req.body;
+
+    await updateService(body);
+
+    res.status(201).json({
+      data: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { getServicesByBusiness, activeService, updateServiceById };

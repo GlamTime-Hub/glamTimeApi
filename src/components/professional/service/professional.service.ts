@@ -92,6 +92,35 @@ const handleInvitation = async (
   return await Professional.findOneAndDelete({ user: userId, businessId });
 };
 
+const updateWorkingHourStatus = async (
+  professionalId: string,
+  day: string,
+  isActive: boolean
+) => {
+  const validDays = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+  ];
+  if (!validDays.includes(day)) {
+    throw new Error("Día inválido. Debe ser uno de: " + validDays.join(", "));
+  }
+
+  const update: { [key: string]: any } = {};
+  update[`workingHours.${day}.isActive`] = isActive;
+
+  const result = await Professional.findByIdAndUpdate(
+    professionalId,
+    { $set: update },
+    { new: true }
+  );
+
+  return result;
+};
+
 export {
   getProfessionals,
   newProfessional,
@@ -100,4 +129,5 @@ export {
   getProfessionalById,
   updateProfessionalsById,
   handleInvitation,
+  updateWorkingHourStatus,
 };

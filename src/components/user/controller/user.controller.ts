@@ -8,7 +8,7 @@ import {
   updateNotificationPreference,
   getUserAllReviews,
 } from "../service/user.service";
-import { AuthenticatedRequest } from "../../../middleware/verifyTokens";
+import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import { supabase } from "../../../config/supabase";
 
 const newUser = async (req: Request, res: Response, next: NextFunction) => {

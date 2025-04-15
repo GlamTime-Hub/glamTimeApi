@@ -10,7 +10,7 @@ import {
   updateBusinessLocation,
   handleBusinessStatus,
 } from "../service/business.service";
-import { AuthenticatedRequest } from "../../../middleware/verifyTokens";
+import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
   getUserByEmail,
   getUserByUserAuthId,
@@ -180,10 +180,8 @@ const updateBusinessLocationById = async (
   next: NextFunction
 ) => {
   try {
-    console.log("amigo???");
     const { id } = req.params;
     const body = req.body;
-    console.log("location", body);
     const response = await updateBusinessLocation(id, body);
     if (!response) {
       res.status(404).json({ message: "Negocio no encontrado" });

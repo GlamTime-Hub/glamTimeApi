@@ -36,26 +36,32 @@ const professionalSchema: Schema = new Schema<IProfessional>({
     monday: {
       start: { type: Number, default: 8, required: false },
       end: { type: Number, default: 18, required: false },
+      isActive: { type: Boolean, default: true, required: false },
     },
     tuesday: {
       start: { type: Number, default: 8, required: false },
       end: { type: Number, default: 18, required: false },
+      isActive: { type: Boolean, default: true, required: false },
     },
     wednesday: {
       start: { type: Number, default: 8, required: false },
       end: { type: Number, default: 18, required: false },
+      isActive: { type: Boolean, default: true, required: false },
     },
     thursday: {
       start: { type: Number, default: 8, required: false },
       end: { type: Number, default: 18, required: false },
+      isActive: { type: Boolean, default: true, required: false },
     },
     friday: {
       start: { type: Number, default: 8, required: false },
       end: { type: Number, default: 18, required: false },
+      isActive: { type: Boolean, default: true, required: false },
     },
     saturday: {
       start: { type: Number, default: 8, required: false },
       end: { type: Number, default: 18, required: false },
+      isActive: { type: Boolean, default: true, required: false },
     },
   },
   createdAt: { type: Date, default: Date.now, required: false },

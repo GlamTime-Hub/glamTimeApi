@@ -6,6 +6,7 @@ import {
   getProfessional,
   updateProfessional,
   handleInvitationProfessional,
+  handleWorkingHours,
 } from "./controller/professional.controller";
 import {
   newProfessionalReview,
@@ -51,6 +52,12 @@ professionalRouter.post(
   "/handle-invitation",
   verifyToken,
   handleInvitationProfessional
+);
+
+professionalRouter.post(
+  "/handle-working-hours",
+  verifyToken,
+  handleWorkingHours
 );
 
 export default professionalRouter;

@@ -120,7 +120,7 @@ const activeServiceByBusiness = async (activeService: any) => {
   return await Service.findByIdAndUpdate(
     activeService.serviceId,
     {
-      status: false,
+      status: activeService.status,
       duration: activeService.duration,
       price: activeService.price,
     },
@@ -128,4 +128,11 @@ const activeServiceByBusiness = async (activeService: any) => {
   );
 };
 
-export { getServicesByBusinessId, activeServiceByBusiness };
+const updateService = async (service: any) => {
+  return await Service.findByIdAndUpdate(service.serviceId, {
+    price: service.price,
+    duration: service.duration,
+  });
+};
+
+export { getServicesByBusinessId, activeServiceByBusiness, updateService };

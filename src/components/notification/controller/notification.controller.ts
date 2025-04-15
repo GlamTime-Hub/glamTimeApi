@@ -31,7 +31,6 @@ const getTotalNotificationByUserId = async (
   try {
     const { id } = req.user;
     const total = await getTotalNotificationByUser(id);
-    console.log("total", total);
 
     res.status(201).json({
       status: true,
