@@ -2,6 +2,7 @@ import { NextFunction, Response, Request } from "express";
 
 import {
   getAllCategories,
+  getAllCategoriesByBusinessType,
   getBusinessTypes,
   getSubcategoriesByCategoryId,
 } from "../service/util.service";
@@ -57,6 +58,24 @@ const getSubcategoriesByCategory = async (
   }
 };
 
+const getCategoriesByBusinessType = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    console.log("id", id);
+    const categories = await getAllCategoriesByBusinessType(id);
+    res.status(201).json({
+      staus: true,
+      data: categories,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getTerms = (_: Request, res: Response) => {
   res.status(200).json(terms);
 };
@@ -70,4 +89,5 @@ export {
   getTerms,
   getPrivacy,
   getAllBusinessType,
+  getCategoriesByBusinessType,
 };

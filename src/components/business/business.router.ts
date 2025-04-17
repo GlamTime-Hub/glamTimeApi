@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {
-  getAllBusiness,
+  getHomeBusiness,
   getBusinessDetail,
   getTopBusiness,
   addNewBusiness,
@@ -20,7 +20,6 @@ import {
 const businessRouter: Router = Router();
 
 //pendientes
-businessRouter.post("/get-business", getAllBusiness);
 businessRouter.post("/get-top-business", getTopBusiness);
 businessRouter.post("/review", verifyToken, newReviewBusiness);
 businessRouter.get("/get-business-by-id/:id", verifyToken, getBusinessDetail);
@@ -49,5 +48,7 @@ businessRouter.put(
 businessRouter.get("/reviews/:businessId", reviewsBusinessById);
 
 businessRouter.post("/handle-business-status", handleBusinessStatusById);
+
+businessRouter.post("/get-home-business", getHomeBusiness);
 
 export default businessRouter;

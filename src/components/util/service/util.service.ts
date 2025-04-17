@@ -6,6 +6,10 @@ const getBusinessTypes = async () => {
   return await BusinesType.find().lean().exec();
 };
 
+const getAllCategoriesByBusinessType = async (businessTypeId: string) => {
+  return await Category.find({ businesstype: businessTypeId }).lean().exec();
+};
+
 const getAllCategories = async () => {
   return await Category.find().lean().exec();
 };
@@ -14,4 +18,9 @@ const getSubcategoriesByCategoryId = async (categoryId: string) => {
   return await SubCategory.find({ categoryId }).lean().exec();
 };
 
-export { getAllCategories, getSubcategoriesByCategoryId, getBusinessTypes };
+export {
+  getAllCategories,
+  getSubcategoriesByCategoryId,
+  getBusinessTypes,
+  getAllCategoriesByBusinessType,
+};

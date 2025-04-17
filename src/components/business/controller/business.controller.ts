@@ -20,22 +20,28 @@ import { newProfessional } from "../../professional/service/professional.service
 import { IProfessional } from "../../professional/model/professional.model";
 import { newNotification } from "../../notification/service/notification.service";
 
-const getAllBusiness = async (
+const getHomeBusiness = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { name, latitude, longitude, page = 1, limit = 10 } = req.body;
+    const {
+      filter: { filter, location, page = 1, limit = 10 },
+    } = req.body;
+    console.log("location", req.body);
 
     const business = await getBusiness(
-      name,
-      latitude,
-      longitude,
+      filter,
+      location.latitude,
+      location.longitude,
       10,
       page,
       limit
     );
+
+    console.log("businesss homee omee", business);
+
     res.status(201).json({
       data: business,
     });
@@ -263,7 +269,7 @@ const handleBusinessStatusById = async (
 };
 
 export {
-  getAllBusiness,
+  getHomeBusiness,
   getTopBusiness,
   getBusinessDetail,
   addNewBusiness,

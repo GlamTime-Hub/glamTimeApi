@@ -2,29 +2,39 @@ import mongoose from "mongoose";
 import { Business, IBusiness } from "../model/business.model";
 
 const getBusiness = async (
-  name: string,
+  filter: {
+    name?: string;
+    city?: string;
+    category?: string;
+    businessType?: string;
+  },
   latitude: number,
   longitude: number,
   radius: number,
   page: number = 1,
   limit: number = 10
 ) => {
-  const match: any[] = [];
+  const matchStages: any[] = [];
 
-  const skip = (page - 1) * limit;
-
-  if (name) {
-    match.push({
+  if (filter.name) {
+    matchStages.push({
       $match: {
-        name: { $regex: name, $options: "i" },
+        name: { $regex: filter.name, $options: "i" },
       },
     });
   }
 
-  if (latitude && longitude) {
-    const radiusInDegrees = radius / 111.32;
+  if (filter.city) {
+    matchStages.push({
+      $match: {
+        city: new mongoose.Types.ObjectId(filter.city),
+      },
+    });
+  }
 
-    match.push({
+  if (latitude && longitude && radius) {
+    const radiusInDegrees = radius / 111.32;
+    matchStages.push({
       $match: {
         "location.latitude": {
           $gte: latitude - radiusInDegrees,
@@ -38,7 +48,32 @@ const getBusiness = async (
     });
   }
 
-  match.push(
+  if (filter.category || filter.businessType) {
+    matchStages.push(
+      {
+        $lookup: {
+          from: "services",
+          localField: "_id",
+          foreignField: "business",
+          as: "services",
+        },
+      },
+      {
+        $match: {
+          ...(filter.category && {
+            "services.category": new mongoose.Types.ObjectId(filter.category),
+          }),
+          ...(filter.businessType && {
+            "services.subCategory": new mongoose.Types.ObjectId(
+              filter.businessType
+            ),
+          }),
+        },
+      }
+    );
+  }
+
+  matchStages.push(
     {
       $lookup: {
         from: "businessreviews",
@@ -57,6 +92,26 @@ const getBusiness = async (
       },
     },
     {
+      $lookup: {
+        from: "businesslikes",
+        let: { businessId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$businessId", "$$businessId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalLikes: { $sum: 1 },
+            },
+          },
+        ],
+        as: "likeStats",
+      },
+    },
+    {
       $addFields: {
         rating: {
           $ifNull: [{ $arrayElemAt: ["$reviewStats.rating", 0] }, 0],
@@ -64,18 +119,24 @@ const getBusiness = async (
         receivedReviews: {
           $ifNull: [{ $arrayElemAt: ["$reviewStats.receivedReviews", 0] }, 0],
         },
+        likes: {
+          $ifNull: [{ $arrayElemAt: ["$likeStats.totalLikes", 0] }, 0],
+        },
       },
     },
     {
       $project: {
         reviewStats: 0,
+        services: 0,
+        likeStats: 0,
       },
     }
   );
 
-  match.push({ $skip: skip }, { $limit: limit });
+  const skip = (page - 1) * limit;
+  matchStages.push({ $skip: skip }, { $limit: limit });
 
-  return await Business.aggregate(match);
+  return await Business.aggregate(matchStages);
 };
 
 const getTopBusinessesByLocation = async (
