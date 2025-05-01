@@ -38,7 +38,7 @@ const getUserProfileById = async (
 ) => {
   try {
     const { id } = req.user;
-
+    console.log("id", id);
     const user = await getUserById(id);
 
     if (!user) {
