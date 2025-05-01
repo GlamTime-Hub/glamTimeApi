@@ -112,6 +112,26 @@ const getBusiness = async (
       },
     },
     {
+      $lookup: {
+        from: "bookings",
+        let: { businessId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$businessId", "$$businessId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalBookings: { $sum: 1 },
+            },
+          },
+        ],
+        as: "boookingStats",
+      },
+    },
+    {
       $addFields: {
         rating: {
           $ifNull: [{ $arrayElemAt: ["$reviewStats.rating", 0] }, 0],
@@ -122,6 +142,9 @@ const getBusiness = async (
         likes: {
           $ifNull: [{ $arrayElemAt: ["$likeStats.totalLikes", 0] }, 0],
         },
+        totalBooking: {
+          $ifNull: [{ $arrayElemAt: ["$boookingStats.totalBookings", 0] }, 0],
+        },
       },
     },
     {
@@ -129,6 +152,7 @@ const getBusiness = async (
         reviewStats: 0,
         services: 0,
         likeStats: 0,
+        bookingStats: 0,
       },
     }
   );
@@ -361,6 +385,97 @@ const handleBusinessStatus = async (businessId: string, isActive: boolean) => {
   ).lean();
 };
 
+const getHomeBusinessById = async (id: string) => {
+  return await Business.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(id),
+      },
+    },
+    {
+      $lookup: {
+        from: "businessreviews",
+        let: { businessId: "$_id" },
+        pipeline: [
+          { $match: { $expr: { $eq: ["$businessId", "$$businessId"] } } },
+          {
+            $group: {
+              _id: null,
+              rating: { $avg: "$rating" },
+              receivedReviews: { $sum: 1 },
+            },
+          },
+        ],
+        as: "reviewStats",
+      },
+    },
+    {
+      $lookup: {
+        from: "businesslikes",
+        let: { businessId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$businessId", "$$businessId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalLikes: { $sum: 1 },
+            },
+          },
+        ],
+        as: "likeStats",
+      },
+    },
+    {
+      $lookup: {
+        from: "bookings",
+        let: { businessId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$businessId", "$$businessId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalBookings: { $sum: 1 },
+            },
+          },
+        ],
+        as: "boookingStats",
+      },
+    },
+    {
+      $addFields: {
+        rating: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.rating", 0] }, 0],
+        },
+        receivedReviews: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.receivedReviews", 0] }, 0],
+        },
+        likes: {
+          $ifNull: [{ $arrayElemAt: ["$likeStats.totalLikes", 0] }, 0],
+        },
+        totalBooking: {
+          $ifNull: [{ $arrayElemAt: ["$boookingStats.totalBookings", 0] }, 0],
+        },
+      },
+    },
+    {
+      $project: {
+        reviewStats: 0,
+        services: 0,
+        likeStats: 0,
+        bookingStats: 0,
+      },
+    },
+  ]);
+};
+
 export {
   getBusiness,
   getTopBusinessesByLocation,
@@ -371,4 +486,5 @@ export {
   updateBusiness,
   updateBusinessLocation,
   handleBusinessStatus,
+  getHomeBusinessById,
 };

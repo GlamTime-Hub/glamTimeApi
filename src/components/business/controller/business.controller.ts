@@ -9,6 +9,7 @@ import {
   updateBusiness,
   updateBusinessLocation,
   handleBusinessStatus,
+  getHomeBusinessById,
 } from "../service/business.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
@@ -29,7 +30,6 @@ const getHomeBusiness = async (
     const {
       filter: { filter, location, page = 1, limit = 10 },
     } = req.body;
-    console.log("location", req.body);
 
     const business = await getBusiness(
       filter,
@@ -39,8 +39,6 @@ const getHomeBusiness = async (
       page,
       limit
     );
-
-    console.log("businesss homee omee", business);
 
     res.status(201).json({
       data: business,
@@ -268,6 +266,23 @@ const handleBusinessStatusById = async (
   }
 };
 
+const getHomeBusinessDetail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const business = await getHomeBusinessById(id);
+    res.status(201).json({
+      status: true,
+      data: business,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   getHomeBusiness,
   getTopBusiness,
@@ -279,4 +294,5 @@ export {
   updateBusinessLocationById,
   handleBusinessStatusById,
   sendInvitationToProfessional,
+  getHomeBusinessDetail,
 };

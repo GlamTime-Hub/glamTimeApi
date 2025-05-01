@@ -1,46 +1,23 @@
 import { NextFunction, Request, Response } from "express";
 import {
   createUser,
-  existsUser,
   getUserById,
   updateUserById,
   updateUserImageProfile,
   updateNotificationPreference,
   getUserAllReviews,
+  getUserByPhoneNumber,
 } from "../service/user.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
-import { supabase } from "../../../config/supabase";
 
 const newUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password, redirectTo, ...profile } = req.body;
-
-    const userExist = await existsUser(email);
-
-    if (userExist) {
-      res.status(409).json({
-        message: `Ya existe un usuario con el email: ${email}`,
-        data: userExist,
-      });
-      return;
-    }
-
-    const supabaseUser = await supabase.auth.signUp({
-      email,
-      password,
-      phone: `${profile.phoneNumberExtension}${profile.phoneNumber}`,
-      options: {
-        emailRedirectTo: redirectTo,
-        data: {
-          role: profile.role,
-        },
-      },
-    });
+    const body = req.body;
 
     const newUser = {
-      userAuthId: supabaseUser.data.user?.id,
-      ...profile,
-      email,
+      ...body,
+      userAuthId: body.userAuthId,
+      email: body.email,
     };
 
     const user = await createUser(newUser);
@@ -166,6 +143,23 @@ const allUserReviews = async (
   }
 };
 
+const getUserByPhone = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { phoneNumber, phoneNumberExtension } = req.params;
+    const user = await getUserByPhoneNumber(phoneNumber, phoneNumberExtension);
+    res.status(201).json({
+      status: 200,
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   newUser,
   getUserProfileById,
@@ -173,4 +167,5 @@ export {
   updateUserImage,
   updateNotificationUser,
   allUserReviews,
+  getUserByPhone,
 };

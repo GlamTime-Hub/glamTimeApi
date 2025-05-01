@@ -10,6 +10,7 @@ import {
   updateBusinessLocationById,
   handleBusinessStatusById,
   sendInvitationToProfessional,
+  getHomeBusinessDetail,
 } from "./controller/business.controller";
 import { verifyToken } from "../../middleware/verifyToken";
 import {
@@ -47,8 +48,14 @@ businessRouter.put(
 
 businessRouter.get("/reviews/:businessId", reviewsBusinessById);
 
-businessRouter.post("/handle-business-status", handleBusinessStatusById);
+businessRouter.post(
+  "/handle-business-status",
+  verifyToken,
+  handleBusinessStatusById
+);
 
 businessRouter.post("/get-home-business", getHomeBusiness);
+
+businessRouter.get("/get-home-business-detail/:id", getHomeBusinessDetail);
 
 export default businessRouter;

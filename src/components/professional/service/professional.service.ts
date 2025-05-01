@@ -2,34 +2,117 @@ import mongoose from "mongoose";
 import { IProfessional, Professional } from "../model/professional.model";
 
 const getProfessionals = async (businessId: string) => {
-  return await Professional.aggregate([
+  const match: any[] = [
     {
       $match: {
         businessId: new mongoose.Types.ObjectId(businessId),
+        isActive: true,
+        invitationStatus: "invitation-accepted",
       },
     },
     {
       $lookup: {
         from: "users",
-        localField: "userId",
-        foreignField: "_id",
+        localField: "userAuthId",
+        foreignField: "userAuthId",
         as: "user",
       },
     },
     {
-      $unwind: "$user",
+      $unwind: {
+        path: "$user",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+  ];
+
+  match.push(
+    {
+      $lookup: {
+        from: "professionalreviews",
+        let: { professionalId: "$_id" },
+        pipeline: [
+          {
+            $match: { $expr: { $eq: ["$professionalId", "$$professionalId"] } },
+          },
+          {
+            $group: {
+              _id: null,
+              rating: { $avg: "$rating" },
+              receivedReviews: { $sum: 1 },
+            },
+          },
+        ],
+        as: "reviewStats",
+      },
+    },
+    {
+      $lookup: {
+        from: "professionallikes",
+        let: { professionalId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$professionalId", "$$professionalId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalLikes: { $sum: 1 },
+            },
+          },
+        ],
+        as: "likeStats",
+      },
+    },
+    {
+      $lookup: {
+        from: "bookings",
+        let: { professionalId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$professionalId", "$$professionalId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalBookings: { $sum: 1 },
+            },
+          },
+        ],
+        as: "bookingStats",
+      },
+    },
+    {
+      $addFields: {
+        rating: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.rating", 0] }, 0],
+        },
+        receivedReviews: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.receivedReviews", 0] }, 0],
+        },
+        likes: {
+          $ifNull: [{ $arrayElemAt: ["$likeStats.totalLikes", 0] }, 0],
+        },
+        totalBooking: {
+          $ifNull: [{ $arrayElemAt: ["$bookingStats.totalBookings", 0] }, 0],
+        },
+      },
     },
     {
       $project: {
-        _id: 1,
-        name: "$user.name",
-        urlPhoto: "$user.urlPhoto",
-        receivedComments: 1,
-        rating: 1,
-        likes: 1,
+        reviewStats: 0,
+        services: 0,
+        likeStats: 0,
+        bookingStats: 0,
       },
-    },
-  ]);
+    }
+  );
+
+  return await Professional.aggregate(match);
 };
 
 const newProfessional = async (professional: IProfessional) => {
@@ -121,6 +204,124 @@ const updateWorkingHourStatus = async (
   return result;
 };
 
+const getProfessionalDetailById = async (
+  professionalId: string,
+  businessId: string
+) => {
+  const match: any[] = [
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(professionalId),
+        businessId: new mongoose.Types.ObjectId(businessId),
+        isActive: true,
+        invitationStatus: "invitation-accepted",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userAuthId",
+        foreignField: "userAuthId",
+        as: "user",
+      },
+    },
+    {
+      $unwind: {
+        path: "$user",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+  ];
+
+  match.push(
+    {
+      $lookup: {
+        from: "professionalreviews",
+        let: { professionalId: "$_id" },
+        pipeline: [
+          {
+            $match: { $expr: { $eq: ["$professionalId", "$$professionalId"] } },
+          },
+          {
+            $group: {
+              _id: null,
+              rating: { $avg: "$rating" },
+              receivedReviews: { $sum: 1 },
+            },
+          },
+        ],
+        as: "reviewStats",
+      },
+    },
+    {
+      $lookup: {
+        from: "professionallikes",
+        let: { professionalId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$professionalId", "$$professionalId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalLikes: { $sum: 1 },
+            },
+          },
+        ],
+        as: "likeStats",
+      },
+    },
+    {
+      $lookup: {
+        from: "bookings",
+        let: { professionalId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$professionalId", "$$professionalId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalBookings: { $sum: 1 },
+            },
+          },
+        ],
+        as: "bookingStats",
+      },
+    },
+    {
+      $addFields: {
+        rating: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.rating", 0] }, 0],
+        },
+        receivedReviews: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.receivedReviews", 0] }, 0],
+        },
+        likes: {
+          $ifNull: [{ $arrayElemAt: ["$likeStats.totalLikes", 0] }, 0],
+        },
+        totalBooking: {
+          $ifNull: [{ $arrayElemAt: ["$bookingStats.totalBookings", 0] }, 0],
+        },
+      },
+    },
+    {
+      $project: {
+        reviewStats: 0,
+        services: 0,
+        likeStats: 0,
+        bookingStats: 0,
+      },
+    }
+  );
+
+  return await Professional.aggregate(match);
+};
+
 export {
   getProfessionals,
   newProfessional,
@@ -130,4 +331,5 @@ export {
   updateProfessionalsById,
   handleInvitation,
   updateWorkingHourStatus,
+  getProfessionalDetailById,
 };

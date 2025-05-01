@@ -65,7 +65,6 @@ const professionalSchema: Schema = new Schema<IProfessional>({
     },
   },
   createdAt: { type: Date, default: Date.now, required: false },
-  startWorking: { type: Date, default: null, required: false },
 });
 
 export const Professional = mongoose.model<IProfessional>(

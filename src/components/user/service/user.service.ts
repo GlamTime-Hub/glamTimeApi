@@ -2,8 +2,13 @@ import { BusinessReview } from "../../business/model/business-review.model";
 import { ProfessionalReview } from "../../professional/model/professional-review.model";
 import { IUser, User } from "../model/user.model";
 
-const existsUser = async (email: string) => {
-  return await User.findOne({ email }).lean().exec();
+const getUserByPhoneNumber = async (
+  phoneNumber: string,
+  phoneNumberExtension: string
+) => {
+  return await User.findOne({ phoneNumber, phoneNumberExtension })
+    .lean()
+    .exec();
 };
 
 const createUser = async (newUser: IUser) => {
@@ -114,11 +119,11 @@ const getUserByUserAuthId = async (userAuthId: string) => {
 export {
   createUser,
   getUserById,
-  existsUser,
   updateUserById,
   updateUserImageProfile,
   updateNotificationPreference,
   getUserAllReviews,
   getUserByEmail,
   getUserByUserAuthId,
+  getUserByPhoneNumber,
 };

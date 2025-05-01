@@ -7,6 +7,7 @@ import {
   updateProfessional,
   handleInvitationProfessional,
   handleWorkingHours,
+  getProfessionalDetail,
 } from "./controller/professional.controller";
 import {
   newProfessionalReview,
@@ -15,8 +16,6 @@ import {
 import { verifyToken } from "../../middleware/verifyToken";
 
 const professionalRouter: Router = Router();
-
-professionalRouter.get("/by-business/:businessId", getProfessionalByBusinessId);
 
 professionalRouter.post("/review", verifyToken, newProfessionalReview);
 professionalRouter.get(
@@ -58,6 +57,16 @@ professionalRouter.post(
   "/handle-working-hours",
   verifyToken,
   handleWorkingHours
+);
+
+professionalRouter.get(
+  "/professionals-by-business/:businessId",
+  getProfessionalByBusinessId
+);
+
+professionalRouter.get(
+  "/professional-detail/:id/:businessId",
+  getProfessionalDetail
 );
 
 export default professionalRouter;

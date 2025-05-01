@@ -65,7 +65,6 @@ const getCategoriesByBusinessType = async (
 ) => {
   try {
     const { id } = req.params;
-    console.log("id", id);
     const categories = await getAllCategoriesByBusinessType(id);
     res.status(201).json({
       staus: true,

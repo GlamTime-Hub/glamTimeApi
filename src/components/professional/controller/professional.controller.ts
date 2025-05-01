@@ -7,6 +7,7 @@ import {
   updateProfessionalsById,
   handleInvitation,
   updateWorkingHourStatus,
+  getProfessionalDetailById,
 } from "../service/professional.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
@@ -22,10 +23,10 @@ const getProfessionalByBusinessId = async (
 ) => {
   try {
     const { businessId } = req.params;
-    const professional = await getProfessionals(businessId);
+    const professionals = await getProfessionals(businessId);
     res.status(200).json({
       status: true,
-      data: professional,
+      data: professionals,
     });
   } catch (error) {
     next(error);
@@ -40,9 +41,6 @@ const getAllProfessionalsByBusiness = async (
   try {
     const { businessId } = req.params;
     const professionals = await getProfessionalsByBusinessId(businessId, false);
-
-    console.log(professionals);
-
     res.status(200).json({
       status: true,
       data: professionals,
@@ -174,6 +172,23 @@ const handleWorkingHours = async (
   }
 };
 
+const getProfessionalDetail = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id, businessId } = req.params;
+    const professional = await getProfessionalDetailById(id, businessId);
+    res.status(200).json({
+      status: true,
+      data: professional[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   getProfessionalByBusinessId,
   getAllProfessionalsByBusiness,
@@ -182,4 +197,5 @@ export {
   updateProfessional,
   handleInvitationProfessional,
   handleWorkingHours,
+  getProfessionalDetail,
 };
