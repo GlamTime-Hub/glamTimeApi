@@ -10,6 +10,10 @@ const getProfessionalReviewById = async (professionalId: string) => {
     .lean()
     .exec();
 
+  if (!profesional) {
+    return [];
+  }
+
   return await ProfessionalReview.aggregate([
     {
       $match: {

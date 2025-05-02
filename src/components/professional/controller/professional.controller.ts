@@ -75,9 +75,10 @@ const getProfessional = async (
   try {
     const { id } = req.user;
     const professional = await getProfessionalById(id);
+
     res.status(200).json({
       status: true,
-      data: professional[0],
+      data: professional.length === 0 ? null : professional[0],
     });
   } catch (error) {
     next(error);

@@ -37,6 +37,8 @@ const professionalReviewById = async (
   try {
     const { professionalId } = req.params;
 
+    console.log("professionalId", professionalId);
+
     const reviews = await getProfessionalReviewById(professionalId);
 
     res.status(201).json({
