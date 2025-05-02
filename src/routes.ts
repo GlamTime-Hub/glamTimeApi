@@ -7,6 +7,7 @@ import serviceRouter from "./components/service/service.route";
 import utilRouter from "./components/util/util.router";
 import notificationsRouter from "./components/notification/notification.router";
 import contactRouter from "./components/contact/contact.router";
+import subscriptionRouter from "./components/subscription/subscription.route";
 
 const routes: Router = express.Router();
 routes.use("/user", userRouter);
@@ -17,5 +18,6 @@ routes.use("/services", serviceRouter);
 routes.use("/util", utilRouter);
 routes.use("/notification", notificationsRouter);
 routes.use("/contact", contactRouter);
+routes.use("/subscription", subscriptionRouter);
 
 export default routes;
