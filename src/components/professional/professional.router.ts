@@ -8,6 +8,7 @@ import {
   handleInvitationProfessional,
   handleWorkingHours,
   getProfessionalDetail,
+  getBusinessByProfessionalByUserId,
 } from "./controller/professional.controller";
 import {
   newProfessionalReview,
@@ -37,7 +38,7 @@ professionalRouter.post(
   deactivateProfessionalsByBusiness
 );
 professionalRouter.get(
-  "/get-professional-by-id/:id",
+  "/get-professional-by-id/:id/:businessId",
   verifyToken,
   getProfessional
 );
@@ -67,6 +68,12 @@ professionalRouter.get(
 professionalRouter.get(
   "/professional-detail/:id/:businessId",
   getProfessionalDetail
+);
+
+professionalRouter.get(
+  "/business-by-professional",
+  verifyToken,
+  getBusinessByProfessionalByUserId
 );
 
 export default professionalRouter;

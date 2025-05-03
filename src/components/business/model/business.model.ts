@@ -14,6 +14,7 @@ export interface IBusiness extends Document {
   phoneNumberExtension: string;
   email: string;
   country: mongoose.Types.ObjectId;
+  businesstype: mongoose.Types.ObjectId;
   city: mongoose.Types.ObjectId;
   isActive: boolean;
   urlPhoto: string;
@@ -35,6 +36,11 @@ const businessSchema: Schema = new Schema<IBusiness>({
   country: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Country",
+    required: true,
+  },
+  businesstype: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "BusinessType",
     required: true,
   },
   city: { type: mongoose.Schema.Types.ObjectId, ref: "City", required: true },

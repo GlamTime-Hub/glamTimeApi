@@ -103,6 +103,17 @@ const addNewBusiness = async (
     };
 
     const response = await newBusiness(businessData);
+
+    const professional = {
+      businessId: new mongoose.Types.ObjectId(response._id as string),
+      user: body.userId,
+      userAuthId: id,
+      isActive: true,
+      invitationStatus: "invitation-accepted",
+    };
+
+    await newProfessional(professional as IProfessional);
+
     res.status(201).json({
       data: response,
     });

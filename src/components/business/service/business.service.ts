@@ -48,6 +48,22 @@ const getBusiness = async (
     });
   }
 
+  matchStages.push(
+    {
+      $lookup: {
+        from: "services",
+        localField: "_id",
+        foreignField: "business",
+        as: "services",
+      },
+    },
+    {
+      $match: {
+        "services.0": { $exists: true }, // Solo negocios con al menos un servicio
+      },
+    }
+  );
+
   if (filter.category || filter.businessType) {
     matchStages.push(
       {

@@ -131,8 +131,8 @@ const getProfessionalsByBusinessId = async (
     .exec();
 };
 
-const getProfessionalById = async (userId: string) => {
-  return await Professional.find({ userAuthId: userId })
+const getProfessionalById = async (userId: string, businessId: string) => {
+  return await Professional.find({ userAuthId: userId, businessId })
     .populate("user", "_id name email phoneNumber urlPhoto")
     .lean()
     .exec();
@@ -140,9 +140,13 @@ const getProfessionalById = async (userId: string) => {
 
 const updateProfessionalsById = async (userId: string, professional: any) => {
   const { _id, ...rest } = professional;
-  return await Professional.findOneAndUpdate({ user: userId }, rest, {
-    new: true,
-  })
+  return await Professional.findOneAndUpdate(
+    { user: userId, businessId: professional.businessId },
+    rest,
+    {
+      new: true,
+    }
+  )
     .lean()
     .exec();
 };
@@ -322,6 +326,41 @@ const getProfessionalDetailById = async (
   return await Professional.aggregate(match);
 };
 
+const getBusinessByProfessional = async (userAuthId: string) => {
+  const match: any[] = [
+    {
+      $match: {
+        userAuthId,
+      },
+    },
+    {
+      $lookup: {
+        from: "businesses",
+        localField: "userAuthId",
+        foreignField: "userAuthId",
+        as: "business",
+      },
+    },
+    {
+      $unwind: {
+        path: "$business",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $project: {
+        workingHours: 1,
+        userAuthId: 1,
+        isActive: 1,
+        createdAt: 1,
+        business: 1,
+      },
+    },
+  ];
+
+  return await Professional.aggregate(match);
+};
+
 export {
   getProfessionals,
   newProfessional,
@@ -332,4 +371,5 @@ export {
   handleInvitation,
   updateWorkingHourStatus,
   getProfessionalDetailById,
+  getBusinessByProfessional,
 };
