@@ -5,7 +5,11 @@ export interface IBooking extends Document {
   professionalId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   userAuthId: string;
-  service: mongoose.Types.ObjectId;
+  serviceId: mongoose.Types.ObjectId;
+  categoryId: mongoose.Types.ObjectId;
+  subcategoryId: mongoose.Types.ObjectId;
+  serviceName: string;
+  fullDate: string;
   date: Date;
   startTime: number;
   endTime: number;
@@ -33,11 +37,23 @@ const bookingSchema: Schema = new Schema<IBooking>({
     type: String,
     required: true,
   },
-  service: {
+  serviceId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Service",
     required: true,
   },
+  categoryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category",
+    required: true,
+  },
+  subcategoryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subcategory",
+    required: true,
+  },
+  serviceName: { type: String, required: true },
+  fullDate: { type: String, required: true },
   date: { type: Date, required: true },
   startTime: { type: Number, required: true },
   endTime: { type: Number, required: true },

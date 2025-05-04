@@ -40,8 +40,13 @@ const getAllProfessionalsByBusiness = async (
   next: NextFunction
 ) => {
   try {
-    const { businessId } = req.params;
-    const professionals = await getProfessionalsByBusinessId(businessId, false);
+    const { businessId, useIsActive } = req.params;
+
+    const professionals = await getProfessionalsByBusinessId(
+      businessId,
+      Boolean(useIsActive)
+    );
+
     res.status(200).json({
       status: true,
       data: professionals,

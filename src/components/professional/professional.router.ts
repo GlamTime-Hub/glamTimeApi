@@ -27,7 +27,7 @@ professionalRouter.get(
 
 //listos
 professionalRouter.get(
-  "/get-professional-by-business-id/:businessId",
+  "/get-professional-by-business-id/:businessId/:useIsActive",
   verifyToken,
   getAllProfessionalsByBusiness
 );

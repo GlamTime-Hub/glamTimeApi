@@ -1,12 +1,15 @@
 import mongoose from "mongoose";
 import { IProfessional, Professional } from "../model/professional.model";
 
-const getProfessionals = async (businessId: string) => {
+const getProfessionals = async (
+  businessId: string,
+  isActive: boolean = true
+) => {
   const match: any[] = [
     {
       $match: {
         businessId: new mongoose.Types.ObjectId(businessId),
-        isActive: true,
+        isActive,
         invitationStatus: "invitation-accepted",
       },
     },
@@ -123,12 +126,7 @@ const getProfessionalsByBusinessId = async (
   businessId: string,
   useIsActive: boolean
 ) => {
-  const query = useIsActive ? { businessId, isActive: true } : { businessId };
-
-  return await Professional.find(query)
-    .populate("user", "_id name email phoneNumber urlPhoto")
-    .lean()
-    .exec();
+  return await getProfessionals(businessId, useIsActive);
 };
 
 const getProfessionalById = async (userId: string, businessId: string) => {
