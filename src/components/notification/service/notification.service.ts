@@ -43,8 +43,50 @@ const getNotificationByUser = async (userAuthId: string) => {
       $unwind: "$business",
     },
     {
+      $lookup: {
+        from: "professionals",
+        localField: "meta.professional",
+        foreignField: "_id",
+        as: "professional",
+      },
+    },
+    {
+      $unwind: "$professional",
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "professional.user",
+        foreignField: "_id",
+        as: "professionalUser",
+      },
+    },
+    {
+      $unwind: {
+        path: "$professionalUser",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
+    {
+      $lookup: {
+        from: "bookings",
+        localField: "meta.booking",
+        foreignField: "_id",
+        as: "booking",
+      },
+    },
+    {
+      $unwind: {
+        path: "$booking",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
+    {
       $project: {
-        message: 1,
+        title: 1,
+        body: 1,
         type: 1,
         isRead: 1,
         createdAt: 1,
@@ -59,9 +101,23 @@ const getNotificationByUser = async (userAuthId: string) => {
         "toUser.userAuthId": 1,
         meta: {
           business: {
-            id: "business._id",
-            name: "business.name",
-            urlPhoto: "business.urlPhoto",
+            id: "$business._id",
+            name: "$business.name",
+            urlPhoto: "$business.urlPhoto",
+          },
+          professional: {
+            id: "$professional._id",
+            name: "$professionalUser.name",
+            urlPhoto: "$professionalUser.urlPhoto",
+          },
+          booking: {
+            id: "$booking._id",
+            date: "$booking.date",
+            fullDate: "$booking.fullDate",
+            startTime: "$booking.startTime",
+            endTime: "$booking.endTime",
+            status: "$booking.status",
+            serviceName: "$booking.serviceName",
           },
         },
       },

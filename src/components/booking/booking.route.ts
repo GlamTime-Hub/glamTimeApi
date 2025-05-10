@@ -4,6 +4,7 @@ import {
   addNewBooking,
   getBookingsByUser,
   cancelBookingByUser,
+  confirmBookingByUser,
   getBookingsByProfessional,
 } from "./controller/booking.controller";
 
@@ -23,5 +24,7 @@ bookingRouter.get(
   verifyToken,
   cancelBookingByUser
 );
+
+bookingRouter.post("/confirm-booking", verifyToken, confirmBookingByUser);
 
 export default bookingRouter;

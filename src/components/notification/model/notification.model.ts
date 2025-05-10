@@ -22,6 +22,7 @@ export interface INotification extends Document {
     | "invitation"
     | "professional-booking"
     | "invitation-accepted"
+    | "booking-confirmed"
     | "invitation-rejected";
 }
 
@@ -42,7 +43,6 @@ const notificationSchema: Schema = new Schema<INotification>({
     },
     userAuthId: { type: String, required: true },
   },
-
   meta: {
     business: {
       type: mongoose.Schema.Types.ObjectId,
@@ -52,6 +52,11 @@ const notificationSchema: Schema = new Schema<INotification>({
     professional: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Professional",
+      required: false,
+    },
+    booking: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Booking",
       required: false,
     },
   },
@@ -67,6 +72,7 @@ const notificationSchema: Schema = new Schema<INotification>({
       "invitation-accepted",
       "invitation-rejected",
       "professional-booking",
+      "booking-confirmed",
     ],
     required: true,
   },

@@ -4,6 +4,7 @@ export interface IBooking extends Document {
   businessId: mongoose.Types.ObjectId;
   professionalId: mongoose.Types.ObjectId;
   professionalUserAuthId: string;
+  professionalUserId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   userAuthId: string;
   serviceId: mongoose.Types.ObjectId;
@@ -29,6 +30,11 @@ const bookingSchema: Schema = new Schema<IBooking>({
   professionalId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Professional",
+    required: true,
+  },
+  professionalUserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true,
   },
   professionalUserAuthId: { type: String, required: true },

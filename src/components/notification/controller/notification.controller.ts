@@ -14,6 +14,7 @@ const getNotificationByUserId = async (
   try {
     const { id } = req.user;
     const notifications = await getNotificationByUser(id);
+
     res.status(201).json({
       status: true,
       data: notifications,

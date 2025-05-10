@@ -119,10 +119,24 @@ const getBookingByProfessionalId = async (
     .exec();
 };
 
+const confirmBooking = async (bookingId: string, reason: string) => {
+  return await Booking.findByIdAndUpdate(
+    bookingId,
+    {
+      $set: {
+        status: "confirmed",
+        reason,
+      },
+    },
+    { new: true }
+  );
+};
+
 export {
   newBooking,
   checkIfExistBooking,
   getBookingByUserAuthId,
   getBookingByProfessionalId,
   cancelBooking,
+  confirmBooking,
 };
