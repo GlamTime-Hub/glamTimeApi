@@ -10,7 +10,6 @@ const serviceRouter: Router = Router();
 
 serviceRouter.post(
   "/get-services-by-business",
-  verifyToken,
   getServicesByBusiness
 );
 

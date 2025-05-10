@@ -237,8 +237,8 @@ const sendInvitationToProfessional = async (
     await newProfessional(professional as IProfessional);
 
     const notification = {
-      business: businessId,
-      message: `Has sido invitado a trabajar en el negocio`,
+      title: "Nueva Invitación",
+      body: `Has sido invitado a trabajar en el negocio`,
       to: {
         user: userTo._id,
         userAuthId: userTo.userAuthId,
@@ -248,6 +248,9 @@ const sendInvitationToProfessional = async (
         user: userFrom?._id,
       },
       type: "invitation",
+      meta: {
+        business: businessId,
+      },
     };
 
     await newNotification(notification);

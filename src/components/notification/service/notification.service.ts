@@ -34,7 +34,7 @@ const getNotificationByUser = async (userAuthId: string) => {
     {
       $lookup: {
         from: "businesses",
-        localField: "business",
+        localField: "meta.business",
         foreignField: "_id",
         as: "business",
       },
@@ -57,9 +57,13 @@ const getNotificationByUser = async (userAuthId: string) => {
         "toUser.name": 1,
         "toUser.urlPhoto": 1,
         "toUser.userAuthId": 1,
-        "business._id": 1,
-        "business.name": 1,
-        "business.urlPhoto": 1,
+        meta: {
+          business: {
+            id: "business._id",
+            name: "business.name",
+            urlPhoto: "business.urlPhoto",
+          },
+        },
       },
     },
     {

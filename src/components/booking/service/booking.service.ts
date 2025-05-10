@@ -80,6 +80,11 @@ const getBookingByUserAuthId = async (userAuthId: string) => {
           id: "$businesses._id",
           name: "$businesses.name",
           urlPhoto: "$businesses.urlPhoto",
+          location: {
+            lat: "$businesses.location.latitude",
+            lng: "$businesses.location.longitude",
+            address: "$businesses.location.address",
+          },
         },
       },
     },
@@ -88,4 +93,36 @@ const getBookingByUserAuthId = async (userAuthId: string) => {
   return await Booking.aggregate(match);
 };
 
-export { newBooking, checkIfExistBooking, getBookingByUserAuthId };
+const cancelBooking = async (bookingId: string, reason: string) => {
+  return await Booking.findByIdAndUpdate(
+    bookingId,
+    {
+      $set: {
+        status: "cancelled",
+        reason,
+      },
+    },
+    { new: true }
+  );
+};
+
+const getBookingByProfessionalId = async (
+  professionalId: string,
+  businessId: string
+) => {
+  return await Booking.find({
+    professionalId,
+    businessId,
+    status: { $in: ["pending", "confirmed"] },
+  })
+    .lean()
+    .exec();
+};
+
+export {
+  newBooking,
+  checkIfExistBooking,
+  getBookingByUserAuthId,
+  getBookingByProfessionalId,
+  cancelBooking,
+};

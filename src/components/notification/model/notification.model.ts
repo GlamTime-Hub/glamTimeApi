@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface INotification extends Document {
-  message: string;
   from: {
     user: mongoose.Types.ObjectId;
     userAuthId: string;
@@ -10,22 +9,23 @@ export interface INotification extends Document {
     user: mongoose.Types.ObjectId;
     userAuthId: string;
   };
-  business: mongoose.Types.ObjectId;
+  meta: {
+    business: mongoose.Types.ObjectId;
+    professional: mongoose.Types.ObjectId;
+  };
   isRead: boolean;
   createdAt: Date;
   readAt: Date;
+  title: string;
+  body: string;
   type:
     | "invitation"
+    | "professional-booking"
     | "invitation-accepted"
-    | "invitation-rejected"
-    | "reservation"
-    | "reservation-accepted"
-    | "reservation-rejected"
-    | "review-received";
+    | "invitation-rejected";
 }
 
 const notificationSchema: Schema = new Schema<INotification>({
-  message: { type: String, required: true },
   from: {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -42,24 +42,31 @@ const notificationSchema: Schema = new Schema<INotification>({
     },
     userAuthId: { type: String, required: true },
   },
-  business: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Business",
-    required: true,
+
+  meta: {
+    business: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Business",
+      required: false,
+    },
+    professional: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Professional",
+      required: false,
+    },
   },
   isRead: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   readAt: { type: Date, default: null },
+  title: { type: String, required: true },
+  body: { type: String, required: true },
   type: {
     type: String,
     enum: [
       "invitation",
       "invitation-accepted",
       "invitation-rejected",
-      "reservation",
-      "reservation-accepted",
-      "reservation-rejected",
-      "review-received",
+      "professional-booking",
     ],
     required: true,
   },

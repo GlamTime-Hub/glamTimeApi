@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IBooking extends Document {
   businessId: mongoose.Types.ObjectId;
   professionalId: mongoose.Types.ObjectId;
+  professionalUserAuthId: string;
   userId: mongoose.Types.ObjectId;
   userAuthId: string;
   serviceId: mongoose.Types.ObjectId;
@@ -10,6 +11,8 @@ export interface IBooking extends Document {
   subcategoryId: mongoose.Types.ObjectId;
   serviceName: string;
   fullDate: string;
+
+  reason: string;
   date: Date;
   startTime: number;
   endTime: number;
@@ -28,6 +31,7 @@ const bookingSchema: Schema = new Schema<IBooking>({
     ref: "Professional",
     required: true,
   },
+  professionalUserAuthId: { type: String, required: true },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -53,6 +57,7 @@ const bookingSchema: Schema = new Schema<IBooking>({
     required: true,
   },
   serviceName: { type: String, required: true },
+  reason: { type: String, required: false, default: null },
   fullDate: { type: String, required: true },
   date: { type: Date, required: true },
   startTime: { type: Number, required: true },
