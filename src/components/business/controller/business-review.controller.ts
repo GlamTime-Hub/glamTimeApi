@@ -4,6 +4,7 @@ import {
   getBusinessReviewById,
 } from "../service/business-review.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
+import { markBookingAsBusinessReviewed } from "../../booking/service/booking.service";
 
 const newReviewBusiness = async (
   req: AuthenticatedRequest,
@@ -19,6 +20,10 @@ const newReviewBusiness = async (
     };
 
     const review = await createBusinessReview(newReview);
+
+    const { bookingId } = newReview;
+
+    await markBookingAsBusinessReviewed(bookingId);
 
     res.status(201).json({
       status: true,

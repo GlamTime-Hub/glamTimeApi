@@ -32,6 +32,14 @@ const getBusiness = async (
     });
   }
 
+  if (filter.businessType) {
+    matchStages.push({
+      $match: {
+        businesstype: new mongoose.Types.ObjectId(filter.businessType),
+      },
+    });
+  }
+
   if (latitude && longitude && radius) {
     const radiusInDegrees = radius / 111.32;
     matchStages.push({
@@ -64,7 +72,7 @@ const getBusiness = async (
     }
   );
 
-  if (filter.category || filter.businessType) {
+  if (filter.category) {
     matchStages.push(
       {
         $lookup: {
@@ -78,11 +86,6 @@ const getBusiness = async (
         $match: {
           ...(filter.category && {
             "services.category": new mongoose.Types.ObjectId(filter.category),
-          }),
-          ...(filter.businessType && {
-            "services.subCategory": new mongoose.Types.ObjectId(
-              filter.businessType
-            ),
           }),
         },
       }
@@ -135,6 +138,7 @@ const getBusiness = async (
           {
             $match: {
               $expr: { $eq: ["$businessId", "$$businessId"] },
+              status: "completed",
             },
           },
           {
@@ -356,6 +360,88 @@ const getBusinessByUserAuthId = async (userAuthId: string) => {
   return await Business.aggregate(match);
 };
 
+const getBusinessByProfessionalId = async (professionalId: string) => {
+  const match: any[] = [];
+
+  match.push({
+    $lookup: {
+      from: "professionals",
+      let: { businessId: "$_id" },
+      pipeline: [
+        { $match: { $expr: { $eq: ["$businessId", "$$businessId"] } } },
+      ],
+      as: "professional",
+    },
+  });
+
+  match.push({
+    $match: {
+      "professional._id": { $eq: new mongoose.Types.ObjectId(professionalId) },
+    },
+  });
+
+  match.push(
+    {
+      $lookup: {
+        from: "businessreviews",
+        let: { businessId: "$_id" },
+        pipeline: [
+          { $match: { $expr: { $eq: ["$businessId", "$$businessId"] } } },
+          {
+            $group: {
+              _id: null,
+              rating: { $avg: "$rating" },
+              receivedReviews: { $sum: 1 },
+            },
+          },
+        ],
+        as: "reviewStats",
+      },
+    },
+    {
+      $lookup: {
+        from: "businesslikes",
+        let: { businessId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$businessId", "$$businessId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalLikes: { $sum: 1 },
+            },
+          },
+        ],
+        as: "likeStats",
+      },
+    },
+    {
+      $addFields: {
+        rating: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.rating", 0] }, 0],
+        },
+        receivedReviews: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.receivedReviews", 0] }, 0],
+        },
+        likes: {
+          $ifNull: [{ $arrayElemAt: ["$likeStats.totalLikes", 0] }, 0],
+        },
+      },
+    },
+    {
+      $project: {
+        reviewStats: 0,
+        likeStats: 0,
+      },
+    }
+  );
+
+  return await Business.aggregate(match);
+};
+
 const newBusiness = async (business: IBusiness) => {
   return Business.create(business);
 };
@@ -453,6 +539,7 @@ const getHomeBusinessById = async (id: string) => {
           {
             $match: {
               $expr: { $eq: ["$businessId", "$$businessId"] },
+              status: "completed",
             },
           },
           {
@@ -503,4 +590,5 @@ export {
   updateBusinessLocation,
   handleBusinessStatus,
   getHomeBusinessById,
+  getBusinessByProfessionalId,
 };

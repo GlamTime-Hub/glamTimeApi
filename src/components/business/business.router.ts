@@ -11,6 +11,7 @@ import {
   handleBusinessStatusById,
   sendInvitationToProfessional,
   getHomeBusinessDetail,
+  getBusinessHomeByProfessionalId,
 } from "./controller/business.controller";
 import { verifyToken } from "../../middleware/verifyToken";
 import {
@@ -22,7 +23,6 @@ const businessRouter: Router = Router();
 
 //pendientes
 businessRouter.post("/get-top-business", getTopBusiness);
-businessRouter.post("/review", verifyToken, newReviewBusiness);
 businessRouter.get("/get-business-by-id/:id", verifyToken, getBusinessDetail);
 
 //Listos
@@ -33,6 +33,13 @@ businessRouter.get(
   verifyToken,
   getBusinessByUserId
 );
+
+businessRouter.get(
+  "/get-business-by-professional-id",
+  verifyToken,
+  getBusinessHomeByProfessionalId
+);
+
 businessRouter.put("/:id", verifyToken, updateBusinessById);
 businessRouter.put(
   "/update-location/:id",
@@ -57,5 +64,7 @@ businessRouter.post(
 businessRouter.post("/get-home-business", getHomeBusiness);
 
 businessRouter.get("/get-home-business-detail/:id", getHomeBusinessDetail);
+
+businessRouter.post("/review", verifyToken, newReviewBusiness);
 
 export default businessRouter;

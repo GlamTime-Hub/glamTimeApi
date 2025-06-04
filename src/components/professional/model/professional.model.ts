@@ -1,17 +1,25 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+const timeBlockScheme = new Schema(
+  {
+    start: { type: Number, required: false },
+    end: { type: Number, required: false },
+  },
+  { _id: false }
+);
+
 export interface IProfessional extends Document {
   userAuthId: string;
   businessId: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
   isActive: boolean;
   workingHours: {
-    monday: { start: number; end: number };
-    tuesday: { start: number; end: number };
-    wednesday: { start: number; end: number };
-    thursday: { start: number; end: number };
-    friday: { start: number; end: number };
-    saturday: { start: number; end: number };
+    monday: { start: number; end: number }[];
+    tuesday: { start: number; end: number }[];
+    wednesday: { start: number; end: number }[];
+    thursday: { start: number; end: number }[];
+    friday: { start: number; end: number }[];
+    saturday: { start: number; end: number }[];
   };
   invitationStatus: string;
   createdAt: Date;
@@ -33,36 +41,13 @@ const professionalSchema: Schema = new Schema<IProfessional>({
   isActive: { type: Boolean, required: false, default: false },
   invitationStatus: { type: String, required: false, default: "pending" },
   workingHours: {
-    monday: {
-      start: { type: Number, default: 8, required: false },
-      end: { type: Number, default: 18, required: false },
-      isActive: { type: Boolean, default: true, required: false },
-    },
-    tuesday: {
-      start: { type: Number, default: 8, required: false },
-      end: { type: Number, default: 18, required: false },
-      isActive: { type: Boolean, default: true, required: false },
-    },
-    wednesday: {
-      start: { type: Number, default: 8, required: false },
-      end: { type: Number, default: 18, required: false },
-      isActive: { type: Boolean, default: true, required: false },
-    },
-    thursday: {
-      start: { type: Number, default: 8, required: false },
-      end: { type: Number, default: 18, required: false },
-      isActive: { type: Boolean, default: true, required: false },
-    },
-    friday: {
-      start: { type: Number, default: 8, required: false },
-      end: { type: Number, default: 18, required: false },
-      isActive: { type: Boolean, default: true, required: false },
-    },
-    saturday: {
-      start: { type: Number, default: 8, required: false },
-      end: { type: Number, default: 18, required: false },
-      isActive: { type: Boolean, default: true, required: false },
-    },
+    monday: { type: [timeBlockScheme], default: [] },
+    tuesday: { type: [timeBlockScheme], default: [] },
+    wednesday: { type: [timeBlockScheme], default: [] },
+    thursday: { type: [timeBlockScheme], default: [] },
+    friday: { type: [timeBlockScheme], default: [] },
+    saturday: { type: [timeBlockScheme], default: [] },
+    sunday: { type: [timeBlockScheme], default: [] },
   },
   createdAt: { type: Date, default: Date.now, required: false },
 });

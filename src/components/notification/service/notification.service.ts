@@ -67,7 +67,6 @@ const getNotificationByUser = async (userAuthId: string) => {
         preserveNullAndEmptyArrays: true,
       },
     },
-
     {
       $lookup: {
         from: "bookings",

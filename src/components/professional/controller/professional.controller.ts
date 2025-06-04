@@ -6,9 +6,9 @@ import {
   getProfessionalById,
   updateProfessionalsById,
   handleInvitation,
-  updateWorkingHourStatus,
   getProfessionalDetailById,
   getBusinessByProfessional,
+  getProfessionalByProfessionalId,
 } from "../service/professional.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
@@ -44,7 +44,7 @@ const getAllProfessionalsByBusiness = async (
 
     const professionals = await getProfessionalsByBusinessId(
       businessId,
-      Boolean(useIsActive)
+      useIsActive === "true"
     );
 
     res.status(200).json({
@@ -120,7 +120,7 @@ const handleInvitationProfessional = async (
     const { invitation } = req.body;
 
     //actualizamos el profesional con el estado de la invitacion
-    await handleInvitation(
+    const professional = await handleInvitation(
       invitation.toUser.user,
       invitation.businessId,
       invitation.invitationStatus
@@ -129,9 +129,11 @@ const handleInvitationProfessional = async (
     // marcamos la notificacion como leida
     await markNotificationAsRead(invitation.notificationId);
 
+    let user;
+
     if (invitation.invitationStatus === "invitation-accepted") {
       // cambiamos rol del user
-      await updateUserById({
+      user = await updateUserById({
         userAuthId: invitation.toUser.userAuthId,
         role: "professional",
       });
@@ -139,11 +141,11 @@ const handleInvitationProfessional = async (
 
     //Notificamos al admin la respuesta del professional
     const notification = {
-      business: invitation.businessId,
-      message:
+      title: "Invitación aceptada",
+      body:
         invitation.invitationStatus === "invitation-accepted"
-          ? `Ha aceptado trabajar contigo.`
-          : `Ha rechazado la solicitud de unirte a tu equipo.`,
+          ? `${user?.name} Ha aceptado ser parte de tu equipo de trabajo.`
+          : `${user?.name} Ha rechazado la solicitud de unirte a tu equipo.`,
       to: {
         user: invitation.fromUser.user,
         userAuthId: invitation.fromUser.userAuthId,
@@ -153,26 +155,15 @@ const handleInvitationProfessional = async (
         user: invitation.toUser.user,
       },
       type: invitation.invitationStatus,
+      meta: {
+        business: invitation.businessId,
+        booking: null,
+        professional: professional?._id,
+      },
     };
 
     await newNotification(notification);
 
-    res.status(200).json({
-      status: true,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const handleWorkingHours = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { professionalId, day, isActive } = req.body;
-    await updateWorkingHourStatus(professionalId, day, isActive);
     res.status(200).json({
       status: true,
     });
@@ -215,6 +206,23 @@ const getBusinessByProfessionalByUserId = async (
   }
 };
 
+const getBusinessByProfessionalByProfessionalId = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { professionalId } = req.params;
+    const professional = await getProfessionalByProfessionalId(professionalId);
+    res.status(200).json({
+      status: true,
+      data: professional[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   getProfessionalByBusinessId,
   getAllProfessionalsByBusiness,
@@ -222,7 +230,7 @@ export {
   getProfessional,
   updateProfessional,
   handleInvitationProfessional,
-  handleWorkingHours,
   getProfessionalDetail,
   getBusinessByProfessionalByUserId,
+  getBusinessByProfessionalByProfessionalId,
 };

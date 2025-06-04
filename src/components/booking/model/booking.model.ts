@@ -18,6 +18,9 @@ export interface IBooking extends Document {
   startTime: number;
   endTime: number;
   status: string;
+  hasBusinessReview: boolean;
+  hasProfessionalReview: boolean;
+
   createdAt: Date;
 }
 
@@ -68,8 +71,10 @@ const bookingSchema: Schema = new Schema<IBooking>({
   date: { type: Date, required: true },
   startTime: { type: Number, required: true },
   endTime: { type: Number, required: true },
-  status: { type: String, default: "pending" },
+  status: { type: String, default: "confirmed" },
   createdAt: { type: Date, default: Date.now },
+  hasBusinessReview: { type: Boolean, default: false },
+  hasProfessionalReview: { type: Boolean, default: false },
 });
 
 export const Booking = mongoose.model<IBooking>("Booking", bookingSchema);

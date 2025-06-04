@@ -2,8 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import {
   createProfessionalReview,
   getProfessionalReviewById,
+  getProfessionalReviewByProfessionalId,
 } from "../service/professional-review.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
+import { markBookingAsProfessionalReviewed } from "../../booking/service/booking.service";
 
 const newProfessionalReview = async (
   req: AuthenticatedRequest,
@@ -20,6 +22,10 @@ const newProfessionalReview = async (
 
     const review = await createProfessionalReview(newReview);
 
+    const { bookingId } = newReview;
+
+    await markBookingAsProfessionalReviewed(bookingId);
+
     res.status(201).json({
       message: "Review created successfully",
       data: review,
@@ -29,15 +35,15 @@ const newProfessionalReview = async (
   }
 };
 
-const professionalReviewById = async (
+const professionalReviewByUserId = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { professionalId } = req.params;
+    const { userId } = req.params;
 
-    const reviews = await getProfessionalReviewById(professionalId);
+    const reviews = await getProfessionalReviewById(userId);
 
     res.status(201).json({
       message: "successfully",
@@ -48,4 +54,27 @@ const professionalReviewById = async (
   }
 };
 
-export { newProfessionalReview, professionalReviewById };
+const professionalReviewByProfessionalId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { professionalId } = req.params;
+
+    const reviews = await getProfessionalReviewByProfessionalId(professionalId);
+
+    res.status(201).json({
+      message: "successfully",
+      data: reviews,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  newProfessionalReview,
+  professionalReviewByUserId,
+  professionalReviewByProfessionalId,
+};

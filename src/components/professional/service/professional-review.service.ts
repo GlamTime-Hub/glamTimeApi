@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { ProfessionalReview } from "../model/professional-review.model";
 import { Professional } from "../model/professional.model";
 
@@ -43,4 +44,40 @@ const getProfessionalReviewById = async (professionalId: string) => {
   ]);
 };
 
-export { createProfessionalReview, getProfessionalReviewById };
+const getProfessionalReviewByProfessionalId = async (
+  professionalId: string
+) => {
+  return await ProfessionalReview.aggregate([
+    {
+      $match: {
+        professionalId: new mongoose.Types.ObjectId(professionalId),
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userAuthId",
+        foreignField: "userAuthId",
+        as: "user",
+      },
+    },
+    {
+      $unwind: "$user",
+    },
+    {
+      $project: {
+        _id: 1,
+        name: "$user.name",
+        urlPhoto: "$user.urlPhoto",
+        rating: 1,
+        review: 1,
+      },
+    },
+  ]);
+};
+
+export {
+  createProfessionalReview,
+  getProfessionalReviewById,
+  getProfessionalReviewByProfessionalId,
+};

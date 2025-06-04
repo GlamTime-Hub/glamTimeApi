@@ -4,9 +4,15 @@ import { Service } from "../model/service.model";
 
 const getServicesByBusinessId = async (
   businessId: string,
-  filterByBusiness: boolean
+  filterByBusiness: boolean,
+  businessType: string
 ) => {
   const pipeline: any[] = [
+    {
+      $match: {
+        businesstype: new mongoose.Types.ObjectId(businessType),
+      },
+    },
     {
       $lookup: {
         from: "subcategories",
@@ -135,4 +141,117 @@ const updateService = async (service: any) => {
   });
 };
 
-export { getServicesByBusinessId, activeServiceByBusiness, updateService };
+const getServicesByProfessional = async (
+  professionalId: string,
+  businessId: string
+) => {
+  const pipeline: any[] = [
+    {
+      $lookup: {
+        from: "subcategories",
+        localField: "_id",
+        foreignField: "categoryId",
+        as: "subCategories",
+      },
+    },
+    { $unwind: "$subCategories" },
+    {
+      $lookup: {
+        from: "services",
+        let: {
+          categoryId: "$_id",
+          subCategoryId: "$subCategories._id",
+          businessId: new mongoose.Types.ObjectId(businessId),
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$category", "$$categoryId"] },
+                  { $eq: ["$subCategory", "$$subCategoryId"] },
+                  { $eq: ["$business", "$$businessId"] },
+                  { $eq: ["$status", true] },
+                ],
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              status: 1,
+              price: 1,
+              duration: 1,
+              business: 1,
+              category: 1,
+              subCategory: 1,
+            },
+          },
+        ],
+        as: "matchedService",
+      },
+    },
+    {
+      $unwind: {
+        path: "$matchedService",
+        preserveNullAndEmptyArrays: false,
+      },
+    },
+    {
+      $lookup: {
+        from: "professionalservices",
+        let: {
+          serviceId: "$matchedService._id",
+          professionalId: new mongoose.Types.ObjectId(professionalId),
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$professional", "$$professionalId"] },
+                  { $eq: ["$service", "$$serviceId"] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "professionalServiceMatch",
+      },
+    },
+    {
+      $addFields: {
+        "subCategories.service": {
+          $mergeObjects: [
+            "$matchedService",
+            {
+              isAssignedToProfessional: {
+                $gt: [{ $size: "$professionalServiceMatch" }, 0],
+              },
+            },
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$_id",
+        name: { $first: "$name" },
+        subCategories: { $push: "$subCategories" },
+      },
+    },
+    {
+      $sort: {
+        name: 1,
+      },
+    },
+  ];
+  return await Category.aggregate(pipeline);
+};
+
+export {
+  getServicesByBusinessId,
+  activeServiceByBusiness,
+  updateService,
+  getServicesByProfessional,
+};

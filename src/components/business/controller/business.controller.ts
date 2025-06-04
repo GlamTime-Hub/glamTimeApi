@@ -10,14 +10,19 @@ import {
   updateBusinessLocation,
   handleBusinessStatus,
   getHomeBusinessById,
+  getBusinessByProfessionalId,
 } from "../service/business.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
-  getUserByEmail,
+  getUserByPhoneNumber,
   getUserByUserAuthId,
 } from "../../user/service/user.service";
 import mongoose from "mongoose";
-import { newProfessional } from "../../professional/service/professional.service";
+import {
+  getBusinessByProfessional,
+  getProfessionalByUserId,
+  newProfessional,
+} from "../../professional/service/professional.service";
 import { IProfessional } from "../../professional/model/professional.model";
 import { newNotification } from "../../notification/service/notification.service";
 
@@ -138,6 +143,28 @@ const getBusinessByUserId = async (
   }
 };
 
+const getBusinessHomeByProfessionalId = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.user;
+
+    const professional = await getProfessionalByUserId(id);
+
+    const response = await getBusinessByProfessionalId(
+      professional?._id as string
+    );
+
+    res.status(201).json({
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const updateBusinessImage = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -218,15 +245,31 @@ const sendInvitationToProfessional = async (
 ) => {
   try {
     const { businessId } = req.params;
-    const { email } = req.body;
+    const { phoneNumber, phoneNumberExtension } = req.body;
     const { id } = req.user;
-    const userTo = await getUserByEmail(email);
-    const userFrom = await getUserByUserAuthId(id);
+
+    const userTo = await getUserByPhoneNumber(
+      phoneNumber,
+      phoneNumberExtension
+    );
 
     if (!userTo) {
       res.status(404).json({ message: "Usuario no encontrado" });
       return;
     }
+
+    const existProfessional = await getBusinessByProfessional(
+      userTo?.userAuthId
+    );
+
+    if (existProfessional.length > 0) {
+      res
+        .status(404)
+        .json({ message: "El profesional ya tiene un negocio asociado." });
+      return;
+    }
+
+    const userFrom = await getUserByUserAuthId(id);
 
     const professional = {
       businessId: new mongoose.Types.ObjectId(businessId),
@@ -234,11 +277,13 @@ const sendInvitationToProfessional = async (
       userAuthId: userTo.userAuthId,
     };
 
-    await newProfessional(professional as IProfessional);
+    const professionalCreated = await newProfessional(
+      professional as IProfessional
+    );
 
     const notification = {
       title: "Nueva Invitación",
-      body: `Has sido invitado a trabajar en el negocio`,
+      body: `Has recibido una nueva invitación de ${userFrom?.name} para trabajar en su negocio.`,
       to: {
         user: userTo._id,
         userAuthId: userTo.userAuthId,
@@ -250,6 +295,8 @@ const sendInvitationToProfessional = async (
       type: "invitation",
       meta: {
         business: businessId,
+        professional: professionalCreated._id,
+        booking: null,
       },
     };
 
@@ -309,4 +356,5 @@ export {
   handleBusinessStatusById,
   sendInvitationToProfessional,
   getHomeBusinessDetail,
+  getBusinessHomeByProfessionalId,
 };

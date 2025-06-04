@@ -6,24 +6,22 @@ import {
   getProfessional,
   updateProfessional,
   handleInvitationProfessional,
-  handleWorkingHours,
   getProfessionalDetail,
   getBusinessByProfessionalByUserId,
+  getBusinessByProfessionalByProfessionalId,
 } from "./controller/professional.controller";
 import {
   newProfessionalReview,
-  professionalReviewById,
+  professionalReviewByProfessionalId,
+  professionalReviewByUserId,
 } from "./controller/professional-review.controller";
 import { verifyToken } from "../../middleware/verifyToken";
+import {
+  addNewProfessionalService,
+  removeProfessionalService,
+} from "./controller/professional-service.controller";
 
 const professionalRouter: Router = Router();
-
-professionalRouter.post("/review", verifyToken, newProfessionalReview);
-professionalRouter.get(
-  "/review/:professionalId",
-  verifyToken,
-  professionalReviewById
-);
 
 //listos
 professionalRouter.get(
@@ -54,12 +52,6 @@ professionalRouter.post(
   handleInvitationProfessional
 );
 
-professionalRouter.post(
-  "/handle-working-hours",
-  verifyToken,
-  handleWorkingHours
-);
-
 professionalRouter.get(
   "/professionals-by-business/:businessId",
   getProfessionalByBusinessId
@@ -74,6 +66,34 @@ professionalRouter.get(
   "/business-by-professional",
   verifyToken,
   getBusinessByProfessionalByUserId
+);
+
+professionalRouter.get(
+  "/business-by-professional-id/:professionalId",
+  verifyToken,
+  getBusinessByProfessionalByProfessionalId
+);
+
+professionalRouter.post("/review", verifyToken, newProfessionalReview);
+
+professionalRouter.get(
+  "/review/:userId",
+  verifyToken,
+  professionalReviewByUserId
+);
+
+professionalRouter.get(
+  "/review-by-professional-id/:professionalId",
+  verifyToken,
+  professionalReviewByProfessionalId
+);
+
+professionalRouter.post("/add-service", verifyToken, addNewProfessionalService);
+
+professionalRouter.delete(
+  "/delete-service/:service",
+  verifyToken,
+  removeProfessionalService
 );
 
 export default professionalRouter;

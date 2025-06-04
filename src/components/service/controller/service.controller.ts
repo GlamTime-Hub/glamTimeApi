@@ -4,7 +4,9 @@ import {
   activeServiceByBusiness,
   getServicesByBusinessId,
   updateService,
+  getServicesByProfessional,
 } from "../service/service.service";
+import { getProfessionalByUserId } from "../../professional/service/professional.service";
 
 const getServicesByBusiness = async (
   req: AuthenticatedRequest,
@@ -12,11 +14,12 @@ const getServicesByBusiness = async (
   next: NextFunction
 ) => {
   try {
-    const { businessId, filterByBusiness } = req.body;
+    const { businessId, filterByBusiness, businessType } = req.body;
 
     const services = await getServicesByBusinessId(
       businessId,
-      Boolean(filterByBusiness)
+      Boolean(filterByBusiness),
+      businessType
     );
 
     res.status(201).json({
@@ -63,4 +66,35 @@ const updateServiceById = async (
   }
 };
 
-export { getServicesByBusiness, activeService, updateServiceById };
+const getServicesByProfessionalAndService = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    let { businessId, professionalId, userAuthId } = req.body;
+
+    if (!professionalId) {
+      const professional = await getProfessionalByUserId(userAuthId);
+      professionalId = professional?._id as string;
+    }
+
+    const services = await getServicesByProfessional(
+      professionalId,
+      businessId
+    );
+
+    res.status(201).json({
+      data: services,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export {
+  getServicesByBusiness,
+  activeService,
+  updateServiceById,
+  getServicesByProfessionalAndService,
+};
