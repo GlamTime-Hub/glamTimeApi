@@ -11,6 +11,7 @@ import {
   handleBusinessStatus,
   getHomeBusinessById,
   getBusinessByProfessionalId,
+  likeBusiness,
 } from "../service/business.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
@@ -344,6 +345,25 @@ const getHomeBusinessDetail = async (
   }
 };
 
+const addLikeBusiness = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { businessId, userId } = req.body;
+    const { id } = req.user;
+
+    const business = await likeBusiness(businessId, id, userId);
+    res.status(201).json({
+      status: true,
+      data: business,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   getHomeBusiness,
   getTopBusiness,
@@ -357,4 +377,5 @@ export {
   sendInvitationToProfessional,
   getHomeBusinessDetail,
   getBusinessHomeByProfessionalId,
+  addLikeBusiness,
 };

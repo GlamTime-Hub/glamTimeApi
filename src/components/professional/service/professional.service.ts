@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 import { IProfessional, Professional } from "../model/professional.model";
+import { ProfessionalLike } from "../model/professional-likes.model";
 
 const getProfessionals = async (
   businessId: string,
-  isActive: boolean = true
+  isActive: boolean = true,
+  serviceId: string | null = null
 ) => {
   const matchProfessionals = isActive
     ? { isActive, invitationStatus: "invitation-accepted" }
@@ -31,6 +33,38 @@ const getProfessionals = async (
       },
     },
   ];
+
+  const conditions: any[] = [{ $eq: ["$professional", "$$professionalId"] }];
+
+  if (serviceId) {
+    conditions.push({
+      $eq: ["$service", new mongoose.Types.ObjectId(serviceId)],
+    });
+  }
+
+  match.push(
+    {
+      $lookup: {
+        from: "professionalservices",
+        let: { professionalId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: conditions,
+              },
+            },
+          },
+        ],
+        as: "professionalServices",
+      },
+    },
+    {
+      $match: {
+        $expr: { $gt: [{ $size: "$professionalServices" }, 0] },
+      },
+    }
+  );
 
   match.push(
     {
@@ -131,6 +165,13 @@ const getProfessionalsByBusinessId = async (
   useIsActive: boolean
 ) => {
   return await getProfessionals(businessId, useIsActive);
+};
+
+const getProfessionalsWithServices = async (
+  businessId: string,
+  serviceId: string
+) => {
+  return await getProfessionals(businessId, true, serviceId);
 };
 
 const getProfessionalById = async (userId: string, businessId: string) => {
@@ -349,6 +390,29 @@ const getProfessionalByUserId = async (userAuthId: string) => {
   return await Professional.findOne({ userAuthId }).lean().exec();
 };
 
+const likeProfessional = async (
+  professionalId: string,
+  userAuthId: string,
+  userId: string
+) => {
+  const existingLike = await ProfessionalLike.findOne({
+    professionalId,
+    userAuthId,
+    userId,
+  });
+
+  if (existingLike) {
+    // If the like already exists, remove it
+    return await ProfessionalLike.findOneAndDelete({
+      professionalId,
+      userAuthId,
+      userId,
+    });
+  }
+
+  return await ProfessionalLike.create({ professionalId, userAuthId, userId });
+};
+
 export {
   getProfessionals,
   newProfessional,
@@ -361,4 +425,6 @@ export {
   getBusinessByProfessional,
   getProfessionalByProfessionalId,
   getProfessionalByUserId,
+  getProfessionalsWithServices,
+  likeProfessional,
 };

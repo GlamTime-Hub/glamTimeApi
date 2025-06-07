@@ -1,15 +1,15 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface IBusinessLike extends Document {
-  businessId: mongoose.Types.ObjectId;
+export interface IProfessionalLike extends Document {
+  professionalId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
 
   userAuthId: string;
   createdAt: Date;
 }
 
-const businessLikeSchema: Schema = new Schema<IBusinessLike>({
-  businessId: {
+const professionalLikeSchema: Schema = new Schema<IProfessionalLike>({
+  professionalId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Business",
     required: true,
@@ -26,7 +26,7 @@ const businessLikeSchema: Schema = new Schema<IBusinessLike>({
   createdAt: { type: Date, default: Date.now },
 });
 
-export const BusinessLike = mongoose.model<IBusinessLike>(
-  "BusinessLike",
-  businessLikeSchema
+export const ProfessionalLike = mongoose.model<IProfessionalLike>(
+  "ProfessionalLike",
+  professionalLikeSchema
 );

@@ -6,9 +6,83 @@ const getUserByPhoneNumber = async (
   phoneNumber: string,
   phoneNumberExtension: string
 ) => {
-  return await User.findOne({ phoneNumber, phoneNumberExtension })
-    .lean()
-    .exec();
+  const pipeline = [
+    {
+      $match: { phoneNumber, phoneNumberExtension },
+    },
+    {
+      $lookup: {
+        from: "businesslikes",
+        let: { uid: "$_id", uauth: "$userAuthId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $or: [
+                  { $eq: ["$userId", "$$uid"] },
+                  { $eq: ["$userAuthId", "$$uauth"] },
+                ],
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              businessIds: { $addToSet: "$businessId" },
+            },
+          },
+        ],
+        as: "businessLikes",
+      },
+    },
+    {
+      $lookup: {
+        from: "professionallikes",
+        let: { uid: "$_id", uauth: "$userAuthId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $or: [
+                  { $eq: ["$userId", "$$uid"] },
+                  { $eq: ["$userAuthId", "$$uauth"] },
+                ],
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              professionalIds: { $addToSet: "$professionalId" },
+            },
+          },
+        ],
+        as: "professionalLikes",
+      },
+    },
+    {
+      $addFields: {
+        likedBusinessIds: {
+          $ifNull: [{ $arrayElemAt: ["$businessLikes.businessIds", 0] }, []],
+        },
+        likedProfessionalIds: {
+          $ifNull: [
+            { $arrayElemAt: ["$professionalLikes.professionalIds", 0] },
+            [],
+          ],
+        },
+      },
+    },
+    {
+      $project: {
+        businessLikes: 0,
+        professionalLikes: 0,
+      },
+    },
+  ];
+
+  const result = await User.aggregate(pipeline);
+  return result[0] || null; // porque es solo uno
 };
 
 const createUser = async (newUser: IUser) => {

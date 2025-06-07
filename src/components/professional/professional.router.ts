@@ -9,6 +9,8 @@ import {
   getProfessionalDetail,
   getBusinessByProfessionalByUserId,
   getBusinessByProfessionalByProfessionalId,
+  getAllProfessionalsWithActiveService,
+  addLikeProfessional,
 } from "./controller/professional.controller";
 import {
   newProfessionalReview,
@@ -28,6 +30,12 @@ professionalRouter.get(
   "/get-professional-by-business-id/:businessId/:useIsActive",
   verifyToken,
   getAllProfessionalsByBusiness
+);
+
+professionalRouter.get(
+  "/get-professional-with-active-service/:businessId/:serviceId",
+  verifyToken,
+  getAllProfessionalsWithActiveService
 );
 
 professionalRouter.post(
@@ -95,5 +103,7 @@ professionalRouter.delete(
   verifyToken,
   removeProfessionalService
 );
+
+professionalRouter.post("/add-like", verifyToken, addLikeProfessional);
 
 export default professionalRouter;

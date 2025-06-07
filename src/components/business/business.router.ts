@@ -12,6 +12,7 @@ import {
   sendInvitationToProfessional,
   getHomeBusinessDetail,
   getBusinessHomeByProfessionalId,
+  addLikeBusiness,
 } from "./controller/business.controller";
 import { verifyToken } from "../../middleware/verifyToken";
 import {
@@ -66,5 +67,7 @@ businessRouter.post("/get-home-business", getHomeBusiness);
 businessRouter.get("/get-home-business-detail/:id", getHomeBusinessDetail);
 
 businessRouter.post("/review", verifyToken, newReviewBusiness);
+
+businessRouter.post("/add-like", verifyToken, addLikeBusiness);
 
 export default businessRouter;

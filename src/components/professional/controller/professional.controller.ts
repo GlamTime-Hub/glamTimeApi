@@ -9,6 +9,8 @@ import {
   getProfessionalDetailById,
   getBusinessByProfessional,
   getProfessionalByProfessionalId,
+  getProfessionalsWithServices,
+  likeProfessional,
 } from "../service/professional.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
@@ -45,6 +47,28 @@ const getAllProfessionalsByBusiness = async (
     const professionals = await getProfessionalsByBusinessId(
       businessId,
       useIsActive === "true"
+    );
+
+    res.status(200).json({
+      status: true,
+      data: professionals,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllProfessionalsWithActiveService = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { businessId, serviceId } = req.params;
+
+    const professionals = await getProfessionalsWithServices(
+      businessId,
+      serviceId
     );
 
     res.status(200).json({
@@ -223,6 +247,23 @@ const getBusinessByProfessionalByProfessionalId = async (
   }
 };
 
+const addLikeProfessional = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { professionalId, userId } = req.body;
+    const { id } = req.user;
+    await likeProfessional(professionalId, id, userId);
+    res.status(201).json({
+      status: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   getProfessionalByBusinessId,
   getAllProfessionalsByBusiness,
@@ -233,4 +274,6 @@ export {
   getProfessionalDetail,
   getBusinessByProfessionalByUserId,
   getBusinessByProfessionalByProfessionalId,
+  getAllProfessionalsWithActiveService,
+  addLikeProfessional,
 };

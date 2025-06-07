@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Business, IBusiness } from "../model/business.model";
+import { BusinessLike } from "../model/business-likes.model";
 
 const getBusiness = async (
   filter: {
@@ -579,6 +580,29 @@ const getHomeBusinessById = async (id: string) => {
   ]);
 };
 
+const likeBusiness = async (
+  businessId: string,
+  userAuthId: string,
+  userId: string
+) => {
+  const existingLike = await BusinessLike.findOne({
+    businessId,
+    userAuthId,
+    userId,
+  });
+
+  if (existingLike) {
+    // If the like already exists, remove it
+    return await BusinessLike.findOneAndDelete({
+      businessId,
+      userAuthId,
+      userId,
+    });
+  }
+
+  return await BusinessLike.create({ businessId, userAuthId, userId });
+};
+
 export {
   getBusiness,
   getTopBusinessesByLocation,
@@ -591,4 +615,5 @@ export {
   handleBusinessStatus,
   getHomeBusinessById,
   getBusinessByProfessionalId,
+  likeBusiness,
 };
