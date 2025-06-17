@@ -603,6 +603,122 @@ const likeBusiness = async (
   return await BusinessLike.create({ businessId, userAuthId, userId });
 };
 
+const getFavoritesBusiness = async (userAuthId: string) => {
+  const matchStages: any[] = [];
+
+  matchStages.push(
+    {
+      $lookup: {
+        from: "businesslikes",
+        let: { businessId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$businessId", "$$businessId"] },
+                  { $eq: ["$userAuthId", userAuthId] },
+                ],
+              },
+            },
+          },
+          { $project: { _id: 1 } },
+        ],
+        as: "likedByUser",
+      },
+    },
+    { $match: { likedByUser: { $ne: [] } } },
+    {
+      $lookup: {
+        from: "businessreviews",
+        let: { businessId: "$_id" },
+        pipeline: [
+          { $match: { $expr: { $eq: ["$businessId", "$$businessId"] } } },
+          {
+            $group: {
+              _id: null,
+              rating: { $avg: "$rating" },
+              receivedReviews: { $sum: 1 },
+            },
+          },
+        ],
+        as: "reviewStats",
+      },
+    },
+    {
+      $lookup: {
+        from: "businesslikes",
+        let: { businessId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$businessId", "$$businessId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalLikes: { $sum: 1 },
+            },
+          },
+        ],
+        as: "likeStats",
+      },
+    },
+    {
+      $lookup: {
+        from: "bookings",
+        let: { businessId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$businessId", "$$businessId"] },
+              status: "completed",
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalBookings: { $sum: 1 },
+            },
+          },
+        ],
+        as: "boookingStats",
+      },
+    },
+    {
+      $addFields: {
+        rating: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.rating", 0] }, 0],
+        },
+        receivedReviews: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.receivedReviews", 0] }, 0],
+        },
+        likes: {
+          $ifNull: [{ $arrayElemAt: ["$likeStats.totalLikes", 0] }, 0],
+        },
+        totalBooking: {
+          $ifNull: [{ $arrayElemAt: ["$boookingStats.totalBookings", 0] }, 0],
+        },
+      },
+    },
+    {
+      $project: {
+        reviewStats: 0,
+        services: 0,
+        likeStats: 0,
+        bookingStats: 0,
+      },
+    }
+  );
+
+  return await Business.aggregate(matchStages);
+};
+
+const getSingleBusiness = async (businessId: string) => {
+  return await Business.findOne({ _id: businessId }).lean();
+};
+
 export {
   getBusiness,
   getTopBusinessesByLocation,
@@ -616,4 +732,6 @@ export {
   getHomeBusinessById,
   getBusinessByProfessionalId,
   likeBusiness,
+  getFavoritesBusiness,
+  getSingleBusiness,
 };

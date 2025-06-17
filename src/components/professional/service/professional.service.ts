@@ -5,7 +5,8 @@ import { ProfessionalLike } from "../model/professional-likes.model";
 const getProfessionals = async (
   businessId: string,
   isActive: boolean = true,
-  serviceId: string | null = null
+  serviceId: string | null = null,
+  useService: boolean = true
 ) => {
   const matchProfessionals = isActive
     ? { isActive, invitationStatus: "invitation-accepted" }
@@ -42,29 +43,32 @@ const getProfessionals = async (
     });
   }
 
-  match.push(
-    {
-      $lookup: {
-        from: "professionalservices",
-        let: { professionalId: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: conditions,
+  //if true, it means we want to filter professionals with services
+  if (useService) {
+    match.push(
+      {
+        $lookup: {
+          from: "professionalservices",
+          let: { professionalId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: conditions,
+                },
               },
             },
-          },
-        ],
-        as: "professionalServices",
+          ],
+          as: "professionalServices",
+        },
       },
-    },
-    {
-      $match: {
-        $expr: { $gt: [{ $size: "$professionalServices" }, 0] },
-      },
-    }
-  );
+      {
+        $match: {
+          $expr: { $gt: [{ $size: "$professionalServices" }, 0] },
+        },
+      }
+    );
+  }
 
   match.push(
     {
@@ -164,7 +168,7 @@ const getProfessionalsByBusinessId = async (
   businessId: string,
   useIsActive: boolean
 ) => {
-  return await getProfessionals(businessId, useIsActive);
+  return await getProfessionals(businessId, useIsActive, null, false);
 };
 
 const getProfessionalsWithServices = async (
@@ -181,10 +185,23 @@ const getProfessionalById = async (userId: string, businessId: string) => {
     .exec();
 };
 
-const updateProfessionalsById = async (userId: string, professional: any) => {
+const updateProfessionalsById = async (
+  userId: string,
+  professional: any,
+  withoutBusiness = false
+) => {
   const { _id, ...rest } = professional;
+
+  if (withoutBusiness) {
+    return await Professional.findOneAndUpdate({ user: userId }, rest, {
+      new: true,
+    })
+      .lean()
+      .exec();
+  }
+
   return await Professional.findOneAndUpdate(
-    { user: userId, businessId: professional.businessId },
+    { user: userId, businessId: rest.businessId },
     rest,
     {
       new: true,
@@ -200,7 +217,7 @@ const deactivateProfessional = async (
 ) => {
   return await Professional.findOneAndUpdate(
     { _id: professionalId, businessId },
-    { isActive: false },
+    { isActive: false, businessId: null, invitationStatus: "" },
     {
       new: true,
     }
@@ -372,6 +389,7 @@ const getBusinessByProfessional = async (userAuthId: string) => {
         isActive: 1,
         createdAt: 1,
         business: 1,
+        user: 1,
       },
     },
   ];
@@ -413,6 +431,134 @@ const likeProfessional = async (
   return await ProfessionalLike.create({ professionalId, userAuthId, userId });
 };
 
+const getProfessionalFavorites = async (userAuthId: string) => {
+  const match: any[] = [];
+
+  match.push(
+    {
+      $lookup: {
+        from: "users",
+        localField: "userAuthId",
+        foreignField: "userAuthId",
+        as: "user",
+      },
+    },
+    {
+      $unwind: {
+        path: "$user",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $lookup: {
+        from: "professionallikes",
+        let: { professionalId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$professionalId", "$$professionalId"] },
+                  { $eq: ["$userAuthId", userAuthId] },
+                ],
+              },
+            },
+          },
+          { $project: { _id: 1 } },
+        ],
+        as: "likedByUser",
+      },
+    },
+    { $match: { likedByUser: { $ne: [] } } },
+    {
+      $lookup: {
+        from: "professionalreviews",
+        let: { professionalId: "$_id" },
+        pipeline: [
+          {
+            $match: { $expr: { $eq: ["$professionalId", "$$professionalId"] } },
+          },
+          {
+            $group: {
+              _id: null,
+              rating: { $avg: "$rating" },
+              receivedReviews: { $sum: 1 },
+            },
+          },
+        ],
+        as: "reviewStats",
+      },
+    },
+    {
+      $lookup: {
+        from: "professionallikes",
+        let: { professionalId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$professionalId", "$$professionalId"] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalLikes: { $sum: 1 },
+            },
+          },
+        ],
+        as: "likeStats",
+      },
+    },
+    {
+      $lookup: {
+        from: "bookings",
+        let: { professionalId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$professionalId", "$$professionalId"] },
+              status: "completed",
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalBookings: { $sum: 1 },
+            },
+          },
+        ],
+        as: "bookingStats",
+      },
+    },
+    {
+      $addFields: {
+        rating: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.rating", 0] }, 0],
+        },
+        receivedReviews: {
+          $ifNull: [{ $arrayElemAt: ["$reviewStats.receivedReviews", 0] }, 0],
+        },
+        likes: {
+          $ifNull: [{ $arrayElemAt: ["$likeStats.totalLikes", 0] }, 0],
+        },
+        totalBooking: {
+          $ifNull: [{ $arrayElemAt: ["$bookingStats.totalBookings", 0] }, 0],
+        },
+      },
+    },
+    {
+      $project: {
+        reviewStats: 0,
+        services: 0,
+        likeStats: 0,
+        bookingStats: 0,
+      },
+    }
+  );
+
+  return await Professional.aggregate(match);
+};
+
 export {
   getProfessionals,
   newProfessional,
@@ -427,4 +573,5 @@ export {
   getProfessionalByUserId,
   getProfessionalsWithServices,
   likeProfessional,
+  getProfessionalFavorites,
 };

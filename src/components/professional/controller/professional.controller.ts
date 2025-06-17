@@ -11,6 +11,7 @@ import {
   getProfessionalByProfessionalId,
   getProfessionalsWithServices,
   likeProfessional,
+  getProfessionalFavorites,
 } from "../service/professional.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
@@ -18,6 +19,8 @@ import {
   markNotificationAsRead,
 } from "../../notification/service/notification.service";
 import { updateUserById } from "../../user/service/user.service";
+import { getSingleBusiness } from "../../business/service/business.service";
+import { deleteProfessionalServices } from "../service/professional-service.service";
 
 const getProfessionalByBusinessId = async (
   req: Request,
@@ -81,13 +84,47 @@ const getAllProfessionalsWithActiveService = async (
 };
 
 const deactivateProfessionalsByBusiness = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { businessId, id } = req.body;
-    await deactivateProfessional(id, businessId);
+    const { id: userAuthId } = req.user;
+    const { businessId, id, userId } = req.body;
+
+    const professional = await deactivateProfessional(id, businessId);
+
+    if (professional) {
+      await updateUserById({
+        userAuthId: professional.userAuthId,
+        role: "user",
+      });
+
+      const business = await getSingleBusiness(businessId);
+
+      await deleteProfessionalServices(professional._id.toString(), businessId);
+
+      const notificationProfessional = {
+        title: "Perfil Profesional Desactivado",
+        body: `Tu perfil profesional en ${business?.name} ha sido desactivado.`,
+        to: {
+          user: professional.user,
+          userAuthId: professional.userAuthId,
+        },
+        from: {
+          userAuthId: userAuthId,
+          user: userId,
+        },
+        type: "invitation-removed",
+        meta: {
+          business: businessId,
+          professional: professional._id,
+          booking: null,
+        },
+      };
+
+      await newNotification(notificationProfessional);
+    }
 
     res.status(200).json({
       status: true,
@@ -153,23 +190,20 @@ const handleInvitationProfessional = async (
     // marcamos la notificacion como leida
     await markNotificationAsRead(invitation.notificationId);
 
-    let user;
+    const accepted = invitation.invitationStatus === "invitation-accepted";
 
-    if (invitation.invitationStatus === "invitation-accepted") {
-      // cambiamos rol del user
-      user = await updateUserById({
-        userAuthId: invitation.toUser.userAuthId,
-        role: "professional",
-      });
-    }
+    // cambiamos rol del user
+    const user = await updateUserById({
+      userAuthId: invitation.toUser.userAuthId,
+      role: accepted ? "professional" : "user",
+    });
 
     //Notificamos al admin la respuesta del professional
     const notification = {
-      title: "Invitación aceptada",
-      body:
-        invitation.invitationStatus === "invitation-accepted"
-          ? `${user?.name} Ha aceptado ser parte de tu equipo de trabajo.`
-          : `${user?.name} Ha rechazado la solicitud de unirte a tu equipo.`,
+      title: accepted ? "Invitación aceptada" : "Invitación rechazada",
+      body: accepted
+        ? `${user?.name} Ha aceptado ser parte de tu equipo de trabajo.`
+        : `${user?.name} Ha rechazado la solicitud de unirte a tu equipo.`,
       to: {
         user: invitation.fromUser.user,
         userAuthId: invitation.fromUser.userAuthId,
@@ -264,6 +298,25 @@ const addLikeProfessional = async (
   }
 };
 
+const getProfessionalFavoritesByUser = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.user;
+
+    const professionales = await getProfessionalFavorites(id);
+
+    res.status(201).json({
+      status: true,
+      data: professionales,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   getProfessionalByBusinessId,
   getAllProfessionalsByBusiness,
@@ -276,4 +329,5 @@ export {
   getBusinessByProfessionalByProfessionalId,
   getAllProfessionalsWithActiveService,
   addLikeProfessional,
+  getProfessionalFavoritesByUser,
 };

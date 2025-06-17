@@ -8,4 +8,18 @@ const removeServiceFromProfessional = async (service: string) => {
   return await ProfessionalService.findOneAndDelete({ service });
 };
 
-export { addServiceToProfessional, removeServiceFromProfessional };
+const deleteProfessionalServices = async (
+  professionalId: string,
+  businessId: string
+) => {
+  return await ProfessionalService.deleteMany({
+    professional: professionalId,
+    business: businessId,
+  });
+};
+
+export {
+  addServiceToProfessional,
+  removeServiceFromProfessional,
+  deleteProfessionalServices,
+};

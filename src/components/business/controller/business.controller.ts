@@ -12,6 +12,7 @@ import {
   getHomeBusinessById,
   getBusinessByProfessionalId,
   likeBusiness,
+  getFavoritesBusiness,
 } from "../service/business.service";
 import { AuthenticatedRequest } from "../../../middleware/verifyToken";
 import {
@@ -23,6 +24,7 @@ import {
   getBusinessByProfessional,
   getProfessionalByUserId,
   newProfessional,
+  updateProfessionalsById,
 } from "../../professional/service/professional.service";
 import { IProfessional } from "../../professional/model/professional.model";
 import { newNotification } from "../../notification/service/notification.service";
@@ -263,7 +265,10 @@ const sendInvitationToProfessional = async (
       userTo?.userAuthId
     );
 
-    if (existProfessional.length > 0) {
+    if (
+      existProfessional.length > 0 &&
+      existProfessional[0].status === "invitation-accepted"
+    ) {
       res
         .status(404)
         .json({ message: "El profesional ya tiene un negocio asociado." });
@@ -278,9 +283,23 @@ const sendInvitationToProfessional = async (
       userAuthId: userTo.userAuthId,
     };
 
-    const professionalCreated = await newProfessional(
-      professional as IProfessional
-    );
+    let professionalInvited: IProfessional;
+
+    if (existProfessional.length === 0) {
+      professionalInvited = await newProfessional(
+        professional as IProfessional
+      );
+    } else {
+      professionalInvited = existProfessional[0];
+      professionalInvited.invitationStatus = "pending";
+      professionalInvited.businessId = new mongoose.Types.ObjectId(businessId);
+
+      await updateProfessionalsById(
+        professionalInvited.user.toString(),
+        professionalInvited,
+        true
+      );
+    }
 
     const notification = {
       title: "Nueva Invitación",
@@ -296,7 +315,7 @@ const sendInvitationToProfessional = async (
       type: "invitation",
       meta: {
         business: businessId,
-        professional: professionalCreated._id,
+        professional: professionalInvited._id,
         booking: null,
       },
     };
@@ -364,6 +383,24 @@ const addLikeBusiness = async (
   }
 };
 
+const getFavorites = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.user;
+
+    const business = await getFavoritesBusiness(id);
+
+    res.status(201).json({
+      data: business,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   getHomeBusiness,
   getTopBusiness,
@@ -378,4 +415,5 @@ export {
   getHomeBusinessDetail,
   getBusinessHomeByProfessionalId,
   addLikeBusiness,
+  getFavorites,
 };

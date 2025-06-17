@@ -13,6 +13,7 @@ import {
   getHomeBusinessDetail,
   getBusinessHomeByProfessionalId,
   addLikeBusiness,
+  getFavorites,
 } from "./controller/business.controller";
 import { verifyToken } from "../../middleware/verifyToken";
 import {
@@ -69,5 +70,7 @@ businessRouter.get("/get-home-business-detail/:id", getHomeBusinessDetail);
 businessRouter.post("/review", verifyToken, newReviewBusiness);
 
 businessRouter.post("/add-like", verifyToken, addLikeBusiness);
+
+businessRouter.get("/get-favorites", verifyToken, getFavorites);
 
 export default businessRouter;

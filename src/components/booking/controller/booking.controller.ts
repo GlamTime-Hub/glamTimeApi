@@ -7,6 +7,8 @@ import {
   getBookingByProfessionalId,
   cancelBooking,
   getAllBookingByProfessionalId,
+  completeBooking,
+  getBookingHistoryDetails,
 } from "../service/booking.service";
 import { IBooking } from "../model/booking.model";
 import {
@@ -77,8 +79,10 @@ const getBookingsByUser = async (
 ) => {
   try {
     const { id } = req.user;
+    const { page, limit, status } = req.body;
 
-    const bookings = await getBookingByUserAuthId(id);
+    const bookings = await getBookingByUserAuthId(id, page, limit, status);
+
     res.status(201).json({
       status: 200,
       data: bookings,
@@ -118,9 +122,13 @@ const cancelBookingByProfessional = async (
     const { bookingId, notificationId, to, from, business, professional } =
       req.body;
 
-    await cancelBooking(bookingId, "Reserva cancelada por el profesional");
+    await cancelBooking(
+      bookingId,
+      "cancelled-by-professional",
+      "Reserva cancelada por el profesional"
+    );
 
-    await markNotificationAsRead(notificationId);
+    if (notificationId) await markNotificationAsRead(notificationId);
 
     const notification = {
       title: "Reserva Cancelada",
@@ -133,7 +141,7 @@ const cancelBookingByProfessional = async (
         userAuthId: from.userAuthId,
         user: from.user,
       },
-      type: "booking-cancelled",
+      type: "booking-cancelled-by-professional",
       meta: {
         business,
         professional,
@@ -159,7 +167,11 @@ const cancelBookingByUser = async (
   try {
     const { bookingId, to, from, business, professional } = req.body;
 
-    await cancelBooking(bookingId, "Reserva cancelada por el usuario.");
+    await cancelBooking(
+      bookingId,
+      "cancelled-by-user",
+      "Reserva cancelada por el usuario."
+    );
 
     const notification = {
       title: "Reserva Cancelada",
@@ -172,7 +184,7 @@ const cancelBookingByUser = async (
         userAuthId: from.userAuthId,
         user: from.user,
       },
-      type: "booking-cancelled",
+      type: "booking-cancelled-by-user",
       meta: {
         business,
         professional,
@@ -197,8 +209,14 @@ const getAllBookingByProfessional = async (
 ) => {
   try {
     const { id } = req.user;
+    const { page, limit, status } = req.body;
 
-    const bookings = await getAllBookingByProfessionalId(id);
+    const bookings = await getAllBookingByProfessionalId(
+      id,
+      page,
+      limit,
+      status
+    );
 
     res.status(201).json({
       status: 200,
@@ -328,6 +346,43 @@ const buildSlots = (
   );
 };
 
+const completeBookingByProfessional = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { bookingId } = req.params;
+
+    await completeBooking(bookingId);
+
+    res.status(201).json({
+      status: 200,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getBookingHistoryDetailsByBookingId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { bookingId } = req.params;
+
+    const booking = await getBookingHistoryDetails(bookingId);
+
+    res.status(201).json({
+      status: 200,
+      data: booking[0],
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   addNewBooking,
   getBookingsByUser,
@@ -336,4 +391,6 @@ export {
   getAllBookingByProfessional,
   cancelBookingByUser,
   getSlots,
+  completeBookingByProfessional,
+  getBookingHistoryDetailsByBookingId,
 };

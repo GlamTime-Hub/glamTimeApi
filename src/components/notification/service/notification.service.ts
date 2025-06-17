@@ -51,7 +51,10 @@ const getNotificationByUser = async (userAuthId: string) => {
       },
     },
     {
-      $unwind: "$professional",
+      $unwind: {
+        path: "$professional",
+        preserveNullAndEmptyArrays: true,
+      },
     },
     {
       $lookup: {

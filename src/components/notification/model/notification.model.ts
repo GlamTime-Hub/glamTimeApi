@@ -24,7 +24,8 @@ export interface INotification extends Document {
     | "invitation-accepted"
     | "booking-cancelled-by-professional"
     | "booking-cancelled-by-user"
-    | "invitation-rejected";
+    | "invitation-rejected"
+    | "invitation-removed";
 }
 
 const notificationSchema: Schema = new Schema<INotification>({
@@ -72,9 +73,10 @@ const notificationSchema: Schema = new Schema<INotification>({
       "professional-booking",
       "booking-cancelled-by-professional",
       "booking-cancelled-by-user",
-      "invitation", //pending
-      "invitation-accepted", //pending
-      "invitation-rejected", //pending
+      "invitation",
+      "invitation-accepted",
+      "invitation-rejected",
+      "invitation-removed",
     ],
     required: true,
   },
